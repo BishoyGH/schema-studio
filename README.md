@@ -10,7 +10,7 @@ The core is schema-driven: every view is a renderer over the same schema + recor
 
 | Done | In progress | Planned |
 | --- | --- | --- |
-| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD | — | F-04 → F-40 |
+| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge | — | F-05 → F-40 |
 
 ### Implemented
 
@@ -37,6 +37,12 @@ The core is schema-driven: every view is a renderer over the same schema + recor
 - Structural validation of the schema document (types, `properties`, `required`, `items`, `enum`) with inline field errors
 - TanStack Query data hooks (`useSchemas` + create/update/delete mutations) over the storage adapter
 - Schema list with draft label and last-updated timestamp, plus empty/loading/error states
+
+**F-04 JSON Schema → Zod bridge**
+
+- `jsonSchemaToZod()` hand-rolled runtime mapper (`src/lib/schemas/json-to-zod.ts`) covering `type` (incl. union types), `required`, `properties`, `additionalProperties` (strict/passthrough/catchall), `items` + array bounds/uniqueness, `enum`/`const`, string (`minLength`/`maxLength`/`pattern`/`format`), number (`minimum`/`maximum`/exclusive bounds/`multipleOf`), `anyOf`/`oneOf`/`allOf`/`not`, and `default`
+- Unsupported keywords are collected in `unsupported[]` (best-effort schema is still returned); `compileJsonSchema()` throws on structurally invalid documents
+- Tested with unit + `fast-check` property-based tests (59 tests total)
 
 ## Planned Features
 

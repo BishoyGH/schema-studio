@@ -36,10 +36,10 @@ Stack: React + TypeScript, Vite, Tailwind CSS v4, Zod, TanStack Query + TanStack
 - [x] [TEST] Integration test: create schema → persists in IndexedDB after reload
 
 ### F-04. JSON-to-Zod Bridge
-- [ ] Convert JSON Schema → Zod schema at runtime (e.g. json-schema-to-zod or hand-rolled mapper)
-- [ ] Fallback/error path for unsupported schema keywords
-- [ ] [TEST] Property-based tests mapping common keywords (type, required, enum, min/max, pattern, nested objects, arrays)
-- [ ] [TEST] Tests for unsupported-keyword fallback behavior
+- [x] Convert JSON Schema → Zod schema at runtime (hand-rolled mapper in `src/lib/schemas/json-to-zod.ts`)
+- [x] Fallback/error path for unsupported schema keywords (reported via `unsupported[]`, schema stays best-effort; `compileJsonSchema` throws on invalid documents)
+- [x] [TEST] Property-based tests mapping common keywords (type, required, enum, min/max, pattern, nested objects, arrays)
+- [x] [TEST] Tests for unsupported-keyword fallback behavior
 
 ### F-05. Record CRUD Against a Schema
 - [ ] Dynamic form generation from a selected schema (react-hook-form + generated Zod schema)

@@ -102,6 +102,26 @@ All notable changes to Schema Studio.
 - Structural JSON Schema validation is hand-rolled for now (no new validator dep); the real JSON → Zod bridge lands in F-04
 - Draft change rewrites `$schema` only when the current text parses as an object, otherwise leaves text untouched for validation to report
 
+## Session 8 - [2026-10-09]
+### Added
+- **F-04 JSON-to-Zod Bridge** (complete):
+  - `src/lib/schemas/json-to-zod.ts`: hand-rolled runtime `jsonSchemaToZod()` mapper producing a Zod schema from a JSON Schema document
+  - Supported keywords: `type` (including union types like `['string','null']`), `enum`, `const`, `properties`, `required`, `additionalProperties` (strict / passthrough / catchall), `items` + `minItems`/`maxItems`/`uniqueItems`, `minimum`/`maximum`/`exclusiveMinimum`/`exclusiveMaximum`/`multipleOf`, `minLength`/`maxLength`/`pattern`/`format` (email, uri/url, uuid, date-time, date, time, ipv4, ipv6), `anyOf`/`oneOf`/`allOf`/`not`, and `default`
+  - Unsupported keywords (e.g. `$ref`, `if`/`then`/`else`, `patternProperties`, `unevaluatedProperties`) are recorded in `unsupported[]` as human-readable notes while the schema stays best-effort — nothing is silently mis-validated
+  - `compileJsonSchema()` guard throws on structurally invalid documents by reusing the F-03 structural check; boolean schemas (`true`/`false`) map to `unknown`/`never`
+  - `fast-check` added as a dev dependency for property-based testing
+
+### Tests
+- [x] `src/lib/schemas/json-to-zod.test.ts`: 28 tests — primitives, string/number/array constraints, nested objects, `additionalProperties` variants, enum/const, combinators, defaults, boolean schemas, and unsupported-keyword fallback
+- [x] Property-based tests (200 runs each): string length vs `min`/`max`, number range, enum membership, required-key presence, and "unsupported keyword is always reported and never throws"
+- [x] `lint` -> `typecheck` -> `test` (59 passing) -> `build` all green
+
+### Decisions
+- Hand-rolled the mapper instead of pulling in `json-schema-to-zod`: keeps the offline-first bundle lean, gives full control of the unsupported-keyword fallback, and avoids a runtime dependency for a small, well-understood subset
+- Kept best-effort semantics with an explicit `unsupported[]` list rather than throwing on unknown keywords, so a partially supported schema still validates what it can (the user can be warned separately)
+- `default` is applied via Zod `.default()`; a property with a default is not additionally wrapped in `.optional()` so the default value is actually filled in
+- `additionalProperties` defaults to passthrough (matching JSON Schema's default) rather than Zod's strip
+
 ## Session [Session Number] - [Date]
 ### Feature Implementation
 - [ ] Feature title here (from handover.md)
