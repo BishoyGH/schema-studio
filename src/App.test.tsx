@@ -7,7 +7,7 @@ describe('App', () => {
     render(<App />)
 
     expect(
-      screen.getByRole('heading', { name: /json schema crud/i }),
+      screen.getByRole('heading', { name: /schema studio/i }),
     ).toBeInTheDocument()
   })
 

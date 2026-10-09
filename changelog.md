@@ -1,5 +1,5 @@
 # Change Log
-All notable changes to the JSON Schema CRUD App.
+All notable changes to Schema Studio.
 
 ## Session 1 - [2025-10-09]
 ### Added
@@ -47,6 +47,17 @@ All notable changes to the JSON Schema CRUD App.
 - Used manual Shadcn setup (`components.json` + `cn()` + `Button`) rather than the interactive CLI
 - `paths` alias without `baseUrl` (TS 6 deprecates `baseUrl`)
 - Initialized Git tracking on branch `main`; added `.gitattributes` (LF normalization); set global Git identity (Bishoy Gamal <bishoygamal1992@gmail.com>); committed baseline
+
+## Session 5 - [2026-10-09]
+### Changed
+- Renamed the project from `json-crud` to **Schema Studio** (npm slug `schema-studio`)
+- Updated references in `package.json`, `package-lock.json`, `index.html`, `README.md`, `src/App.tsx`, `src/App.test.tsx`, `e2e/smoke.spec.ts`, `changelog.md`, `handover.md`
+- Left the `AGENTS.md` "JSON Schema CRUD" capability bullet unchanged (it describes the data model, not the product name)
+- Local folder path left as-is by choice; no remote configured
+
+### Tests
+- [x] Updated heading assertions in unit + e2e smoke tests to `/schema studio/i`
+- [x] `lint` -> `typecheck` -> `test` all green
 
 ## Session [Session Number] - [Date]
 ### Feature Implementation

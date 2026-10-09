@@ -1,4 +1,4 @@
-# JSON Schema CRUD App - Handover Document
+# Schema Studio - Handover Document
 
 ## Application Overview
 **Frontend-only PWA** (no backend, no server API). All data lives in the browser (IndexedDB). Manages JSON Schemas and schema-validated records with full CRUD, installable like a native app, works 100% offline, mobile-first with touch support, full keyboard + command palette, user settings, bring-your-own-data import/export, dark/light themes (+ future custom themes), and complete RTL support including the rich text editor. Core architecture is schema-driven and extensible so the app can grow into larger product modes (see Future Extensions) without rewrites.

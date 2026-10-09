@@ -1,4 +1,4 @@
-# JSON Schema CRUD
+# Schema Studio
 
 Offline-first, schema-driven JSON CRUD app. Frontend-only PWA — all data lives in the browser (IndexedDB). No backend, no network dependency.
 

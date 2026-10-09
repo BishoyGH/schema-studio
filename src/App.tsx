@@ -10,7 +10,7 @@ function App() {
         transition={{ duration: 0.4, ease: 'easeOut' }}
         className="flex flex-col items-center gap-3"
       >
-        <h1 className="text-3xl font-semibold tracking-tight">JSON Schema CRUD</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">Schema Studio</h1>
         <p className="max-w-sm text-muted-foreground text-balance">
           Offline-first, schema-driven records. Manage your data entirely in the
           browser.
