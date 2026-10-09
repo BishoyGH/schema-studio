@@ -6,11 +6,11 @@ The core is schema-driven: every view is a renderer over the same schema + recor
 
 ## Status
 
-> Early development. Feature status mirrors the backlog in `handover.md` (F-01–F-40).
+> Early development. Feature status mirrors the backlog in `handover.md` (F-01–F-42).
 
 | Done | In progress | Planned |
 | --- | --- | --- |
-| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge | — | F-05 → F-40 |
+| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge | — | F-05 → F-42 |
 
 ### Implemented
 
@@ -48,6 +48,8 @@ The core is schema-driven: every view is a renderer over the same schema + recor
 
 Grouped by category; see `handover.md` for the full, test-paired backlog.
 
+- **Schema authoring (next up)**: tabbed schema editor — Builder (default) + Raw JSON, visual schema builder, live JSON Schema preview
+- **CI (next up)**: GitHub Actions running lint, typecheck, unit, coverage gates, production build, Playwright e2e (desktop + mobile), PWA/offline e2e, Lighthouse PWA audit, axe accessibility, and bundle-size checks
 - **Critical CRUD**: IndexedDB storage layer, JSON Schema CRUD, JSON Schema → Zod bridge, record CRUD
 - **PWA & Offline**: installable manifest, service worker/app shell, offline-first operations and UX
 - **Mobile-first & touch**: 320px-first layout, 44px touch targets, gestures, bottom-tab navigation
@@ -100,6 +102,6 @@ src/
   test/            # Vitest setup
   App.tsx          # App shell
 e2e/               # Playwright end-to-end tests
-handover.md        # Feature backlog (F-01–F-40) and session checklist
+handover.md        # Feature backlog (F-01–F-42) and session checklist
 changelog.md       # Per-session change log
 ```

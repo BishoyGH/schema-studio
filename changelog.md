@@ -122,6 +122,19 @@ All notable changes to Schema Studio.
 - `default` is applied via Zod `.default()`; a property with a default is not additionally wrapped in `.optional()` so the default value is actually filled in
 - `additionalProperties` defaults to passthrough (matching JSON Schema's default) rather than Zod's strip
 
+## Session 9 - [2026-10-09]
+### Updated
+- Reprioritized `handover.md` — three features promoted to the very top of the backlog, marked **TOP PRIORITY**:
+  - **F-05 Schema Editor — Tabbed (Builder default + Raw JSON)**: create/edit dialog gets two tabs; Builder is the default, the existing raw JSON editor stays fully functional as the power-user path (F-03's raw editing is never removed), shared form state in both directions, invalid raw JSON blocks save without corrupting builder state, keyboard/RTL-complete tab control
+  - **F-06 Visual Schema Builder (user-friendly schema creator)**: no-code field editor (types, constraints, nested objects/arrays, required toggles, defaults, live JSON Schema preview), round-trips existing schemas, preserves unsupported constructs with an "advanced — edit in Raw JSON" badge, seeded later by schema inference
+  - **F-07 GitHub Actions CI (all kinds of testing)**: `.github/workflows/ci.yml` with lint, typecheck, unit, coverage gate, production build, Playwright e2e (desktop Chromium + Pixel 5), PWA/offline e2e, Lighthouse PWA audit, axe accessibility, bundle-size check, artifact uploads, actionlint, README badge, required status checks
+- Backlog renumbered **F-01–F-40 → F-01–F-42** so the new features sit at F-05–F-07 (immediately after the four completed features) instead of at the end:
+  - old F-05 → F-08, F-06 → F-09, F-07 → F-10, F-08 → F-11, F-09 → F-12, F-10 → F-13, F-11 → F-14, F-12 → F-15, F-13 → F-16, F-14 → F-17, F-15 → F-18, F-16 → F-19 (all +3)
+  - old F-17 (schema editor, BlockNote + JSON view) → **merged into new F-05**
+  - old F-18 → F-20 … old F-40 → F-42 (all +2)
+  - Note: F-IDs quoted in changelog entries from sessions 1–8 use the pre-renumber scheme
+- `README.md`: status range now F-01–F-42; Planned Features lists schema authoring and CI first
+
 ## Session [Session Number] - [Date]
 ### Feature Implementation
 - [ ] Feature title here (from handover.md)
