@@ -10,7 +10,7 @@ The core is schema-driven: every view is a renderer over the same schema + recor
 
 | Done | In progress | Planned |
 | --- | --- | --- |
-| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge | — | F-05 → F-42 |
+| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge, F-05 Tabbed schema editor | F-06 Visual schema builder | F-07 → F-42 |
 
 ### Implemented
 
@@ -44,11 +44,20 @@ The core is schema-driven: every view is a renderer over the same schema + recor
 - Unsupported keywords are collected in `unsupported[]` (best-effort schema is still returned); `compileJsonSchema()` throws on structurally invalid documents
 - Tested with unit + `fast-check` property-based tests (59 tests total)
 
+**F-05 Tabbed schema editor (Builder + Raw JSON)**
+
+- The create/edit dialog now has two tabs over one shared form state: **Builder** (default) and **Raw JSON**
+- Raw JSON tab keeps the full F-03 editing experience (monospace textarea, draft `$schema` sync, structural validation) and now reports parse errors with line/column
+- Builder tab offers no-code field editing (add/remove/reorder fields, name, type, required, description, `additionalProperties`) while preserving constructs it does not understand and flagging them as "advanced — edit in Raw JSON"
+- Switching tabs never loses content; invalid Raw JSON blocks saving, shows a positioned error, and leaves the Builder showing the last valid schema (with a "Restore last valid" action)
+- Last-used tab persists in IndexedDB (new settings store, `StorageAdapter.getSetting`/`setSetting`, Dexie v2 → v3); keyboard-complete tab control (`role="tablist"`, arrows/Home/End, `Ctrl/Cmd+Alt+1|2`)
+- "Preview changes" shows a line diff of the schema document before saving
+
 ## Planned Features
 
 Grouped by category; see `handover.md` for the full, test-paired backlog.
 
-- **Schema authoring (next up)**: tabbed schema editor — Builder (default) + Raw JSON, visual schema builder, live JSON Schema preview
+- **Schema authoring (in progress)**: full visual schema builder — constraints, nested objects/arrays, `enum`/`const`, live JSON Schema preview (F-06)
 - **CI (next up)**: GitHub Actions running lint, typecheck, unit, coverage gates, production build, Playwright e2e (desktop + mobile), PWA/offline e2e, Lighthouse PWA audit, axe accessibility, and bundle-size checks
 - **Critical CRUD**: IndexedDB storage layer, JSON Schema CRUD, JSON Schema → Zod bridge, record CRUD
 - **PWA & Offline**: installable manifest, service worker/app shell, offline-first operations and UX
@@ -95,9 +104,10 @@ npm run test:e2e       # Playwright (install browsers first: npx playwright inst
 ```
 src/
   components/ui/   # Shadcn UI components
-  components/schemas/ # Schema CRUD UI (form, list, manager)
+  components/schemas/ # Schema CRUD UI (tabbed form, builder, diff, list, manager)
   lib/             # Shared utilities (cn, etc.)
-  lib/schemas/     # Schema validation (Zod) + TanStack Query hooks
+  lib/schemas/     # Schema validation (Zod), JSON→Zod bridge, diff, query hooks
+  lib/settings/    # Persisted app settings hooks (IndexedDB)
   lib/storage/     # Swappable storage layer (IndexedDB via Dexie)
   test/            # Vitest setup
   App.tsx          # App shell

@@ -57,6 +57,49 @@ export type ParseResult =
   | { ok: false; error: string }
 
 /**
+ * Map a 0-based character `position` in `text` to a 1-based line/column pair so
+ * parse errors can point the user at the right spot.
+ */
+export function positionToLineColumn(
+  text: string,
+  position: number,
+): { line: number; column: number } {
+  const clamped = Math.max(0, Math.min(position, text.length))
+  const before = text.slice(0, clamped)
+  const line = before.split('\n').length
+  const lastNewline = before.lastIndexOf('\n')
+  return { line, column: clamped - lastNewline }
+}
+
+/**
+ * Turn a raw `JSON.parse` failure into a message that includes the line/column
+ * of the offending character when the engine reports a position.
+ */
+export function describeJsonParseError(text: string, error: unknown): string {
+  const raw = error instanceof Error ? error.message : 'unknown error'
+  const message = raw.replace(/\s*\(line \d+ column \d+\)\s*$/i, '').trim()
+
+  const positionMatch = /position (\d+)/i.exec(raw)
+  const lineColumnMatch = /line (\d+) column (\d+)/i.exec(raw)
+
+  let line: number | undefined
+  let column: number | undefined
+  if (positionMatch) {
+    const found = positionToLineColumn(text, Number(positionMatch[1]))
+    line = found.line
+    column = found.column
+  } else if (lineColumnMatch) {
+    line = Number(lineColumnMatch[1])
+    column = Number(lineColumnMatch[2])
+  }
+
+  if (line === undefined || column === undefined) {
+    return `Invalid JSON: ${message}`
+  }
+  return `Invalid JSON: ${message} (line ${line}, column ${column})`
+}
+
+/**
  * Parse raw text into a JSON schema object. Arrays, primitives, and `null` are
  * rejected because a JSON Schema document must be an object.
  */
@@ -68,10 +111,9 @@ export function parseJsonSchema(text: string): ParseResult {
 
   let parsed: unknown
   try {
-    parsed = JSON.parse(trimmed)
+    parsed = JSON.parse(text)
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'unknown error'
-    return { ok: false, error: `Invalid JSON: ${message}` }
+    return { ok: false, error: describeJsonParseError(text, error) }
   }
 
   if (!isPlainObject(parsed)) {

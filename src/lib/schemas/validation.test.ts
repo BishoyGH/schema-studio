@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
+  describeJsonParseError,
   emptySchemaFormValues,
   findJsonSchemaError,
   parseJsonSchema,
+  positionToLineColumn,
   schemaFormSchema,
 } from './validation'
 
@@ -152,6 +154,38 @@ describe('parseJsonSchema', () => {
 
     expect(result.ok).toBe(false)
     if (!result.ok) expect(result.error).toMatch(/required/i)
+  })
+
+  it('reports the line and column of a JSON parse error', () => {
+    const text = '{\n  "type": "object",\n  "properties": {\n}'
+    const error = (() => {
+      try {
+        JSON.parse(text)
+        return null
+      } catch (caught) {
+        return caught
+      }
+    })()
+
+    const message = describeJsonParseError(text, error)
+    expect(message).toMatch(/invalid json/i)
+    expect(message).toMatch(/line \d+, column \d+/)
+  })
+})
+
+describe('positionToLineColumn', () => {
+  it('maps a position on the first line to column N', () => {
+    expect(positionToLineColumn('abc', 0)).toEqual({ line: 1, column: 1 })
+    expect(positionToLineColumn('abc', 2)).toEqual({ line: 1, column: 3 })
+  })
+
+  it('maps positions after newlines to the correct line', () => {
+    expect(positionToLineColumn('a\nbc', 2)).toEqual({ line: 2, column: 1 })
+    expect(positionToLineColumn('a\nbc', 3)).toEqual({ line: 2, column: 2 })
+  })
+
+  it('clamps out-of-range positions to the text length', () => {
+    expect(positionToLineColumn('ab', 99)).toEqual({ line: 1, column: 3 })
   })
 })
 

@@ -47,6 +47,7 @@ describe('SchemaManager', () => {
 
     await user.click(await screen.findByRole('button', { name: /new schema/i }))
     await user.type(screen.getByLabelText('Name'), 'Person')
+    await user.click(screen.getByRole('tab', { name: /raw json/i }))
     fireEvent.change(screen.getByLabelText('Schema JSON'), {
       target: {
         value: JSON.stringify({
@@ -101,6 +102,7 @@ describe('SchemaManager', () => {
     renderManager()
 
     await user.click(await screen.findByRole('button', { name: /new schema/i }))
+    await user.click(screen.getByRole('tab', { name: /raw json/i }))
     fireEvent.change(screen.getByLabelText('Schema JSON'), {
       target: { value: '{ broken' },
     })

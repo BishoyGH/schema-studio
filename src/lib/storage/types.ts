@@ -36,6 +36,12 @@ export interface UpdateRecordInput {
   data: Record<string, unknown>
 }
 
+export interface SettingRecord {
+  key: string
+  value: unknown
+  updatedAt: string
+}
+
 /**
  * Storage contract the app depends on. IndexedDB is the current implementation;
  * any future engine only needs to satisfy this interface to be swapped in.
@@ -53,6 +59,10 @@ export interface StorageAdapter {
   createRecord(input: CreateRecordInput): Promise<RecordEntity>
   updateRecord(id: string, input: UpdateRecordInput): Promise<RecordEntity>
   deleteRecord(id: string): Promise<void>
+
+  getSetting<T = unknown>(key: string): Promise<T | undefined>
+  setSetting(key: string, value: unknown): Promise<void>
+  deleteSetting(key: string): Promise<void>
 
   close(): void
   destroy(): Promise<void>

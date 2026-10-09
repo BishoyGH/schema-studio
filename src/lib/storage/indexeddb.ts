@@ -5,6 +5,7 @@ import {
   type CreateSchemaInput,
   type RecordEntity,
   type SchemaEntity,
+  type SettingRecord,
   type StorageAdapter,
   type UpdateRecordInput,
   type UpdateSchemaInput,
@@ -13,7 +14,7 @@ import {
 const DEFAULT_DB_NAME = 'schema-studio'
 const DEFAULT_DRAFT = '2020-12'
 
-export const DB_VERSION = 2
+export const DB_VERSION = 3
 
 function nowIso(): string {
   return new Date().toISOString()
@@ -31,10 +32,12 @@ function createId(): string {
  *
  * v1 -> v2 adds audit-timestamp indexes and backfills missing `createdAt` /
  * `updatedAt` on legacy records (e.g. data imported before timestamps existed).
+ * v2 -> v3 adds the key/value `settings` store (no backfill needed).
  */
 class SchemaStudioDatabase extends Dexie {
   schemas!: Table<SchemaEntity, string>
   records!: Table<RecordEntity, string>
+  settings!: Table<SettingRecord, string>
 
   constructor(name: string) {
     super(name)
@@ -66,6 +69,12 @@ class SchemaStudioDatabase extends Dexie {
             if (!record.updatedAt) record.updatedAt = record.createdAt
           })
       })
+
+    this.version(3).stores({
+      schemas: 'id, name, createdAt, updatedAt',
+      records: 'id, schemaId, createdAt, updatedAt',
+      settings: 'key',
+    })
   }
 }
 
@@ -176,6 +185,20 @@ export function createIndexedDbStorage(
 
     async deleteRecord(id) {
       await db.records.delete(id)
+    },
+
+    async getSetting<T = unknown>(key: string) {
+      const row = await db.settings.get(key)
+      return row?.value as T | undefined
+    },
+
+    async setSetting(key, value) {
+      const row: SettingRecord = { key, value, updatedAt: nowIso() }
+      await db.settings.put(row)
+    },
+
+    async deleteSetting(key) {
+      await db.settings.delete(key)
     },
 
     close() {

@@ -133,6 +133,25 @@ describe('IndexedDB storage', () => {
     })
   })
 
+  describe('settings', () => {
+    it('stores, reads, overwrites, and deletes a setting', async () => {
+      expect(await storage.getSetting('schemaEditor.defaultTab')).toBeUndefined()
+
+      await storage.setSetting('schemaEditor.defaultTab', 'builder')
+      expect(await storage.getSetting<string>('schemaEditor.defaultTab')).toBe(
+        'builder',
+      )
+
+      await storage.setSetting('schemaEditor.defaultTab', 'raw')
+      expect(await storage.getSetting<string>('schemaEditor.defaultTab')).toBe(
+        'raw',
+      )
+
+      await storage.deleteSetting('schemaEditor.defaultTab')
+      expect(await storage.getSetting('schemaEditor.defaultTab')).toBeUndefined()
+    })
+  })
+
   describe('migrations', () => {
     it('upgrades a v1 database to v2 and backfills timestamps', async () => {
       const name = uniqueName()
@@ -167,6 +186,40 @@ describe('IndexedDB storage', () => {
       const schemas = await migrated.listSchemas()
       expect(schemas).toHaveLength(1)
       expect(schemas[0].updatedAt).toBeTruthy()
+
+      await migrated.destroy()
+    })
+
+    it('upgrades a v2 database to v3, preserving data and adding settings', async () => {
+      const name = uniqueName()
+      const legacy = new Dexie(name)
+      legacy.version(1).stores({ schemas: 'id, name', records: 'id, schemaId' })
+      legacy.version(2).stores({
+        schemas: 'id, name, createdAt, updatedAt',
+        records: 'id, schemaId, createdAt, updatedAt',
+      })
+      await legacy.open()
+      await legacy.table('schemas').add({
+        id: 's1',
+        name: 'Kept',
+        description: '',
+        draft: '2020-12',
+        jsonSchema: { type: 'object' },
+        createdAt: '2020-01-01T00:00:00.000Z',
+        updatedAt: '2020-01-01T00:00:00.000Z',
+      })
+      legacy.close()
+
+      const migrated = createIndexedDbStorage({ name })
+
+      const schemas = await migrated.listSchemas()
+      expect(schemas.map((schema) => schema.name)).toEqual(['Kept'])
+
+      // The new v3 settings store must exist and be usable after the upgrade.
+      await migrated.setSetting('schemaEditor.defaultTab', 'raw')
+      expect(await migrated.getSetting<string>('schemaEditor.defaultTab')).toBe(
+        'raw',
+      )
 
       await migrated.destroy()
     })

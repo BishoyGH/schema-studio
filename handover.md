@@ -24,9 +24,10 @@ Stack: React + TypeScript, Vite, Tailwind CSS v4, Zod, TanStack Query + TanStack
 ### F-02. IndexedDB Storage Layer
 - [x] IndexedDB wrapper (Dexie) with versioned schema/object stores, behind a swappable `StorageAdapter` interface
 - [x] CRUD functions: create/read/update/delete for schemas and records (delete cascades records; records require an existing schema)
-- [x] Transaction error handling (`StorageError`) and upgrade/migration path (v1 → v2)
+- [x] Transaction error handling (`StorageError`) and upgrade/migration path (v1 → v2 → v3)
+- [x] Key/value `settings` store (`getSetting`/`setSetting`/`deleteSetting`) behind the same `StorageAdapter` (v2 → v3)
 - [x] [TEST] Unit tests with fake-indexeddb for all CRUD functions
-- [x] [TEST] Migration test: open old DB version, verify upgrade + timestamp backfill
+- [x] [TEST] Migration tests: v1 → v2 timestamp backfill; v2 → v3 preserves data and adds the settings store
 
 ### F-03. Schema CRUD
 - [x] Create/edit/delete JSON schemas (react-hook-form + Zod validation)
@@ -34,7 +35,7 @@ Stack: React + TypeScript, Vite, Tailwind CSS v4, Zod, TanStack Query + TanStack
 - [x] JSON Schema draft support (2020-12 at minimum) + draft picker
 - [x] [TEST] Unit tests for schema form validation (valid + invalid schemas)
 - [x] [TEST] Integration test: create schema → persists in IndexedDB after reload
-- [ ] Raw JSON editing must keep working forever as the power-user escape hatch (the tabbed editor + visual builder must never remove or bypass it)
+- [x] Raw JSON editing must keep working forever as the power-user escape hatch (the tabbed editor + visual builder must never remove or bypass it)
 
 ### F-04. JSON-to-Zod Bridge
 - [x] Convert JSON Schema → Zod schema at runtime (hand-rolled mapper in `src/lib/schemas/json-to-zod.ts`)
@@ -43,17 +44,17 @@ Stack: React + TypeScript, Vite, Tailwind CSS v4, Zod, TanStack Query + TanStack
 - [x] [TEST] Tests for unsupported-keyword fallback behavior
 
 ### F-05. Schema Editor — Tabbed (Builder default + Raw JSON) — TOP PRIORITY
-- [ ] Tabbed editor shell in the create/edit schema dialog: **Builder** (user-friendly, default) and **Raw JSON**
-- [ ] **Builder tab is the default** on first open; last-used tab persisted in settings (F-21) so power users can pin Raw as their default
-- [ ] **Raw JSON tab**: the existing F-03 editor (monospace textarea today; a BlockNote-rich raw editing layer can be added later) keeps working unchanged — syntax check, draft `$schema` sync, structural validation errors inline
-- [ ] Both tabs are two views over the same form state: edits in Builder appear in Raw JSON instantly and vice versa (single source of truth, no "apply" step between tabs)
-- [ ] Switching tabs never loses content; invalid JSON in the Raw tab blocks saving and shows a parse error with line/column, and cannot corrupt the Builder state
-- [ ] Tab control is keyboard-complete (arrow keys, Home/End, `role="tablist"`/`aria-selected`), RTL-aware, reachable via a command-palette action + shortcut (F-17)
-- [ ] Schema diff/preview before save
-- [ ] [TEST] Toggle Builder ↔ Raw preserves content in both directions (property-based: arbitrary schema JSON round-trips)
-- [ ] [TEST] Invalid JSON in Raw tab is caught, reported with position, save blocked, Builder state intact
-- [ ] [TEST] Default tab = Builder for new users; persisted tab preference is honored on reopen
-- [ ] [TEST] Raw tab regression: F-03 create/edit/delete flow still passes with the tabbed shell in place
+- [x] Tabbed editor shell in the create/edit schema dialog: **Builder** (user-friendly, default) and **Raw JSON**
+- [x] **Builder tab is the default** on first open; last-used tab persisted in settings (F-21) so power users can pin Raw as their default
+- [x] **Raw JSON tab**: the existing F-03 editor (monospace textarea today; a BlockNote-rich raw editing layer can be added later) keeps working unchanged — syntax check, draft `$schema` sync, structural validation errors inline
+- [x] Both tabs are two views over the same form state: edits in Builder appear in Raw JSON instantly and vice versa (single source of truth, no "apply" step between tabs)
+- [x] Switching tabs never loses content; invalid JSON in the Raw tab blocks saving and shows a parse error with line/column, and cannot corrupt the Builder state
+- [ ] Tab control is keyboard-complete (arrow keys, Home/End, `role="tablist"`/`aria-selected`), RTL-aware, reachable via a command-palette action + shortcut (F-17) — keyboard + `Ctrl/Cmd+Alt+1|2` shortcut done; command-palette registration deferred to F-17 (no palette yet)
+- [x] Schema diff/preview before save
+- [x] [TEST] Toggle Builder ↔ Raw preserves content in both directions (property-based: arbitrary schema JSON round-trips)
+- [x] [TEST] Invalid JSON in Raw tab is caught, reported with position, save blocked, Builder state intact
+- [x] [TEST] Default tab = Builder for new users; persisted tab preference is honored on reopen
+- [x] [TEST] Raw tab regression: F-03 create/edit/delete flow still passes with the tabbed shell in place
 
 ### F-06. Visual Schema Builder (User-Friendly Schema Creator) — TOP PRIORITY
 - [ ] No-code field editor as the **default** authoring experience: add/remove/reorder/duplicate fields, name + title + description, "required" toggle per field

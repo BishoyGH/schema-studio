@@ -135,6 +135,33 @@ All notable changes to Schema Studio.
   - Note: F-IDs quoted in changelog entries from sessions 1–8 use the pre-renumber scheme
 - `README.md`: status range now F-01–F-42; Planned Features lists schema authoring and CI first
 
+## Session 10 - [2026-10-09]
+### Added
+- **F-05 Schema Editor — Tabbed (Builder default + Raw JSON)** (complete modulo F-17 command-palette registration):
+  - `src/components/ui/tabs.tsx`: Shadcn-style Tabs primitive over `@radix-ui/react-tabs` (new dep); keyboard-complete tablist (arrows/Home/End, `role="tablist"`/`aria-selected`)
+  - `src/components/schemas/schema-builder.tsx`: no-code Builder over the shared form state — add/remove/reorder/rename fields, name/type/required/description, `additionalProperties` toggle; preserves unknown root and per-field keywords and flags them with an "advanced — edit in Raw JSON" badge; read-only fallback for non-object roots
+  - `src/components/schemas/schema-diff.tsx` + `src/lib/schemas/diff.ts`: LCS line diff for the "Preview changes" panel shown before save
+  - `src/lib/settings/queries.ts`: persisted settings hooks; new setting `schemaEditor.defaultTab`
+  - `src/lib/schemas/validation.ts`: `positionToLineColumn()` + `describeJsonParseError()` so Raw JSON errors report line/column
+  - Storage: Dexie v3 adds a key/value `settings` store; `StorageAdapter` gains `getSetting`/`setSetting`/`deleteSetting`
+- `schema-form.tsx` rebuilt as a tabbed shell: shared single `jsonSchema` field, panel content kept mounted (`forceMount`) so tab switches never lose state, `Ctrl/Cmd+Alt+1|2` tab shortcuts, live Raw JSON parse error, and `$schema` draft sync intact
+
+### Tests
+- [x] `schema-form.test.tsx` (9): Builder default, persisted Raw preference, preference write-through, bi-directional Builder↔Raw sync, invalid Raw JSON blocked with line/column + Builder state preserved, keyboard arrows/Home, diff preview, and a `fast-check` property test round-tripping arbitrary schema JSON through tab switches
+- [x] `validation.test.ts`: line/column parse-error and `positionToLineColumn` cases
+- [x] `diff.test.ts`: LCS diff equal/added/removed and empty-input cases
+- [x] `indexeddb.test.ts`: settings store CRUD + v2 → v3 migration test
+- [x] F-03 regression: `schema-manager.test.tsx` updated to open the Raw JSON tab, still green
+- [x] `lint` -> `typecheck` -> `test` (78 passing) -> `build` all green
+
+### Decisions
+- Kept one `jsonSchema` string as the single source of truth in react-hook-form; the Builder derives its rows from it and writes back serialized JSON, so there is no "apply" step and Raw edits show up immediately
+- Builder is intentionally a minimal slice of F-06 (types + required + description + `additionalProperties`); F-06 will extend it with constraints, nesting, `enum`/`const`, and a live preview without changing the tab architecture
+- When Raw JSON is invalid the Builder renders the last valid document read-only (with "Restore last valid") rather than permitting edits that would silently discard the user's half-typed JSON
+- Both `TabsContent` panels use `forceMount`; this is what guarantees "switching tabs never loses content" (Radix unmounts inactive content by default, which had dropped the Builder's last-valid state)
+- Added a key/value `settings` store at Dexie v3 (no backfill needed) rather than `localStorage`, honoring the "persist in IndexedDB" rule and giving F-21 a foundation
+- `useSetting`'s query returns `null` (not `undefined`) for unset keys because TanStack Query v5 rejects `undefined` query data
+
 ## Session [Session Number] - [Date]
 ### Feature Implementation
 - [ ] Feature title here (from handover.md)

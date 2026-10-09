@@ -190,13 +190,13 @@ export function SchemaManager() {
       )}
 
       <Dialog open={editorOpen} onOpenChange={setEditorOpen}>
-        <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-xl">
+        <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>{editing ? 'Edit schema' : 'New schema'}</DialogTitle>
             <DialogDescription>
               {editing
-                ? 'Update the schema definition and metadata.'
-                : 'Give your schema a name and define its JSON Schema document.'}
+                ? 'Update the schema definition and metadata using the Builder or Raw JSON.'
+                : 'Give your schema a name, then build it visually or edit the JSON directly.'}
             </DialogDescription>
           </DialogHeader>
           <SchemaForm
