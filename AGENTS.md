@@ -42,7 +42,8 @@
   - `npm run test:e2e` - Run Playwright (install browsers once via `npx playwright install`)
 
 ## Version Control & Documentation
-- The repo is tracked with Git (branch `main`). Keep it tracked: commit after each completed feature and at the end of every session — only once `lint`, `typecheck`, and `test` pass.
+- The repo is tracked with Git (branch `main`). Keep it tracked.
+- **Always commit automatically** — do not wait to be asked. Commit once a feature is finished, and again when session goals are reached, as long as `lint`, `typecheck`, and `test` pass.
 - Use conventional commit messages (`feat:`, `fix:`, `docs:`, `chore:`, `test:`, `refactor:`).
 - Never commit `node_modules`, build output, coverage, or secrets; keep `.gitignore` current.
 - Update `README.md` every session so its Status and Features sections reflect current progress for the potential audience.

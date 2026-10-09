@@ -304,3 +304,4 @@ Stack: React + TypeScript, Vite, Tailwind CSS v4, Zod, TanStack Query + TanStack
 - [ ] Implement feature **and** its paired `[TEST]` items
 - [ ] Run `lint -> typecheck -> test`
 - [ ] Update `changelog.md` with session date, items completed (by F-ID), decisions, blockers
+- [ ] **Commit automatically** once checks pass (per feature and when session goals are reached) — do not wait to be asked
