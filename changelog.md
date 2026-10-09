@@ -46,6 +46,7 @@ All notable changes to the JSON Schema CRUD App.
 - Kept template's Oxlint instead of ESLint (F-39 will revisit tooling standards)
 - Used manual Shadcn setup (`components.json` + `cn()` + `Button`) rather than the interactive CLI
 - `paths` alias without `baseUrl` (TS 6 deprecates `baseUrl`)
+- Initialized Git tracking on branch `main`; added `.gitattributes` (LF normalization) and local repo identity; committed baseline
 
 ## Session [Session Number] - [Date]
 ### Feature Implementation
