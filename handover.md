@@ -29,11 +29,11 @@ Stack: React + TypeScript, Vite, Tailwind CSS v4, Zod, TanStack Query + TanStack
 - [x] [TEST] Migration test: open old DB version, verify upgrade + timestamp backfill
 
 ### F-03. Schema CRUD
-- [ ] Create/edit/delete JSON schemas (react-hook-form + Zod validation)
-- [ ] Delete confirmation dialogs
-- [ ] JSON Schema draft support (2020-12 at minimum) + draft picker
-- [ ] [TEST] Unit tests for schema form validation (valid + invalid schemas)
-- [ ] [TEST] Integration test: create schema → persists in IndexedDB after reload
+- [x] Create/edit/delete JSON schemas (react-hook-form + Zod validation)
+- [x] Delete confirmation dialogs
+- [x] JSON Schema draft support (2020-12 at minimum) + draft picker
+- [x] [TEST] Unit tests for schema form validation (valid + invalid schemas)
+- [x] [TEST] Integration test: create schema → persists in IndexedDB after reload
 
 ### F-04. JSON-to-Zod Bridge
 - [ ] Convert JSON Schema → Zod schema at runtime (e.g. json-schema-to-zod or hand-rolled mapper)

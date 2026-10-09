@@ -11,9 +11,11 @@ describe('App', () => {
     ).toBeInTheDocument()
   })
 
-  it('renders the primary call to action', () => {
+  it('offers a way to create a schema', () => {
     render(<App />)
 
-    expect(screen.getByRole('button', { name: /get started/i })).toBeInTheDocument()
+    expect(
+      screen.getAllByRole('button', { name: /new schema/i }).length,
+    ).toBeGreaterThan(0)
   })
 })

@@ -79,6 +79,29 @@ All notable changes to Schema Studio.
 - `deleteSchema` cascades to its records inside a single transaction to avoid orphaned data
 - Tests fake only `Date` (`toFake: ['Date']`) so timestamps are deterministic while IndexedDB async still runs
 
+## Session 7 - [2026-10-09]
+### Added
+- **F-03 Schema CRUD** (complete):
+  - `src/lib/schemas/validation.ts`: Zod `schemaFormSchema` (name/description/draft/jsonSchema) plus a pragmatic structural JSON Schema guard (`parseJsonSchema`, `findJsonSchemaError`) and `SCHEMA_DRAFTS` options with meta-schema URIs
+  - `src/lib/schemas/queries.ts`: TanStack Query hooks (`useSchemas`, `useSchema`, `useCreateSchema`, `useUpdateSchema`, `useDeleteSchema`) over `getStorage()`
+  - `src/components/schemas/schema-form.tsx`: react-hook-form + `zodResolver` form with draft picker; changing draft keeps `$schema` in sync with the JSON text
+  - `src/components/schemas/schema-manager.tsx`: schema list with draft/last-updated metadata, create/edit dialog, and delete confirmation dialog warning about cascade
+  - Shadcn UI primitives added: `input`, `label`, `textarea`, `select`, `dialog`, `card`
+  - `App.tsx` now a real shell (`QueryClientProvider` + header) rendering `SchemaManager`
+- Deps: `react-hook-form`, `zod`, `@hookform/resolvers`, `@tanstack/react-query`, `@radix-ui/react-label`, `@radix-ui/react-select`, `@radix-ui/react-dialog`
+
+### Tests
+- [x] `src/lib/schemas/validation.test.ts`: valid/invalid form cases (empty + overlong name, malformed JSON, non-object document, bad `type`, bad `required`), nested-property path errors, draft-specific defaults (11)
+- [x] `src/components/schemas/schema-manager.test.tsx`: create → persists across a simulated reload (fresh storage + fresh QueryClient), delete after confirmation, invalid input surfaces errors and saves nothing
+- [x] Updated `src/App.test.tsx` for the new shell (heading + "New schema" affordance)
+- [x] `lint` -> `typecheck` -> `test` (31 passing) -> `build` all green
+
+### Decisions
+- Introduced TanStack Query now (ahead of F-15's table) since schemas are server-state; F-15 adds sorting/filtering/pagination on top of these hooks without touching storage
+- Kept the JSON document in a plain monospace textarea for F-03; F-17 layers the rich BlockNote + raw toggle on the same form
+- Structural JSON Schema validation is hand-rolled for now (no new validator dep); the real JSON → Zod bridge lands in F-04
+- Draft change rewrites `$schema` only when the current text parses as an object, otherwise leaves text untouched for validation to report
+
 ## Session [Session Number] - [Date]
 ### Feature Implementation
 - [ ] Feature title here (from handover.md)
