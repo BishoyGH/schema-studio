@@ -10,15 +10,24 @@ The core is schema-driven: every view is a renderer over the same schema + recor
 
 | Done | In progress | Planned |
 | --- | --- | --- |
-| F-01 Project scaffolding | — | F-02 → F-40 |
+| F-01 Project scaffolding, F-02 IndexedDB storage | — | F-03 → F-40 |
 
-### Implemented (F-01)
+### Implemented
+
+**F-01 Project scaffolding**
 
 - Vite + React + TypeScript with strict mode
 - Tailwind CSS v4 with a Shadcn-based theme token system
 - Motion for animation
 - Vitest + React Testing Library (unit/integration) and Playwright (e2e) wired up
 - Basic app shell
+
+**F-02 IndexedDB storage layer**
+
+- Versioned Dexie database behind a swappable `StorageAdapter` interface (`getStorage()` / `setStorage()`)
+- Schema + record CRUD, per-schema records, cascade delete, `StorageError` handling
+- v1 → v2 migration with timestamp backfill
+- Tested with `fake-indexeddb`
 
 ## Planned Features
 
@@ -70,6 +79,7 @@ npm run test:e2e       # Playwright (install browsers first: npx playwright inst
 src/
   components/ui/   # Shadcn UI components
   lib/             # Shared utilities (cn, etc.)
+  lib/storage/     # Swappable storage layer (IndexedDB via Dexie)
   test/            # Vitest setup
   App.tsx          # App shell
 e2e/               # Playwright end-to-end tests

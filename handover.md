@@ -22,11 +22,11 @@ Stack: React + TypeScript, Vite, Tailwind CSS v4, Zod, TanStack Query + TanStack
 - [x] [TEST] Smoke test renders the app and passes (`npm run test`)
 
 ### F-02. IndexedDB Storage Layer
-- [ ] IndexedDB wrapper (Dexie or raw IDB) with versioned schema/object stores
-- [ ] CRUD functions: create/read/update/delete for schemas and records
-- [ ] Transaction error handling and upgrade/migration path
-- [ ] [TEST] Unit tests with fake-indexeddb for all CRUD functions
-- [ ] [TEST] Migration test: open old DB version, verify upgrade
+- [x] IndexedDB wrapper (Dexie) with versioned schema/object stores, behind a swappable `StorageAdapter` interface
+- [x] CRUD functions: create/read/update/delete for schemas and records (delete cascades records; records require an existing schema)
+- [x] Transaction error handling (`StorageError`) and upgrade/migration path (v1 → v2)
+- [x] [TEST] Unit tests with fake-indexeddb for all CRUD functions
+- [x] [TEST] Migration test: open old DB version, verify upgrade + timestamp backfill
 
 ### F-03. Schema CRUD
 - [ ] Create/edit/delete JSON schemas (react-hook-form + Zod validation)

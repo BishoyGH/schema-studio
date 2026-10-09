@@ -59,6 +59,26 @@ All notable changes to Schema Studio.
 - [x] Updated heading assertions in unit + e2e smoke tests to `/schema studio/i`
 - [x] `lint` -> `typecheck` -> `test` all green
 
+## Session 6 - [2026-10-09]
+### Added
+- **F-02 IndexedDB Storage Layer** (complete):
+  - Swappable `StorageAdapter` interface and domain types (`SchemaEntity`, `RecordEntity`, inputs, `StorageError`) in `src/lib/storage/types.ts`
+  - Dexie-backed, versioned implementation in `src/lib/storage/indexeddb.ts` (v1 → v2), exposing `createIndexedDbStorage()`
+  - `src/lib/storage/index.ts` exposes the active adapter via `getStorage()` / `setStorage()` so the engine stays swappable behind one interface
+  - Schema CRUD + record CRUD (create/read/update/delete) scoped per schema; deleting a schema cascades its records; creating a record for a missing schema throws `NOT_FOUND`
+  - v2 migration adds `createdAt`/`updatedAt` indexes and backfills missing timestamps on legacy schemas and records
+- Deps: `dexie` (runtime), `fake-indexeddb` (dev); `fake-indexeddb/auto` wired into `src/test/setup.ts`
+
+### Tests
+- [x] `src/lib/storage/indexeddb.test.ts`: 12 tests covering schema + record CRUD, ordering, timestamp preservation, `NOT_FOUND` handling, cascade delete, and v1 → v2 migration backfill (all with fake-indexeddb)
+- [x] `lint` -> `typecheck` -> `test` (14 passing) -> `build` all green
+
+### Decisions
+- Chose Dexie over raw IDB for first-class versioned schema + migration support (`version().stores().upgrade()`); kept it behind our own `StorageAdapter` so it can be swapped later
+- Migration is genuine: v1 lacked audit-timestamp indexes, so v2 backfills `createdAt`/`updatedAt` (also needed by F-29); without this, legacy rows would drop out of the new `updatedAt` index
+- `deleteSchema` cascades to its records inside a single transaction to avoid orphaned data
+- Tests fake only `Date` (`toFake: ['Date']`) so timestamps are deterministic while IndexedDB async still runs
+
 ## Session [Session Number] - [Date]
 ### Feature Implementation
 - [ ] Feature title here (from handover.md)
