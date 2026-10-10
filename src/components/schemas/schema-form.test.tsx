@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import fc from 'fast-check'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -236,4 +236,98 @@ describe('SchemaForm tabbed editor', () => {
     },
     15_000,
   )
+})
+
+describe('SchemaForm form preview (F-07a)', () => {
+  let dbName: string
+  const storages: StorageAdapter[] = []
+
+  function newStorage() {
+    const storage = createIndexedDbStorage({ name: dbName })
+    storages.push(storage)
+    setStorage(storage)
+    return storage
+  }
+
+  beforeEach(() => {
+    dbName = `schema-studio-test-${crypto.randomUUID()}`
+    newStorage()
+  })
+
+  afterEach(async () => {
+    await Promise.all(storages.map((storage) => storage.destroy()))
+    storages.length = 0
+  })
+
+  it('toggles the live preview panel with keyboard and keeps it visible on both tabs', async () => {
+    const user = userEvent.setup()
+    renderForm()
+
+    const toggle = screen.getByRole('button', { name: /preview form/i })
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    expect(toggle).toHaveAttribute('aria-controls', 'schema-preview-panel')
+
+    toggle.focus()
+    await user.keyboard('{Enter}')
+    expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    const preview = screen.getByTestId('schema-preview')
+    expect(preview).toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', { name: /raw json/i }))
+    expect(screen.getByLabelText('Schema JSON')).toBeInTheDocument()
+    expect(screen.getByTestId('schema-preview')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', { name: /builder/i }))
+    expect(screen.getByTestId('schema-preview')).toBeInTheDocument()
+  })
+
+  it('updates the preview live as the schema is edited (debounced re-render)', async () => {
+    const user = userEvent.setup()
+    renderForm()
+
+    await user.click(screen.getByRole('button', { name: /preview form/i }))
+    expect(screen.getByText(/no editable fields/i)).toBeInTheDocument()
+
+    await user.click(screen.getByRole('tab', { name: /raw json/i }))
+    fireEvent.change(screen.getByLabelText('Schema JSON'), {
+      target: {
+        value: JSON.stringify(
+          {
+            type: 'object',
+            properties: { email: { type: 'string', format: 'email' } },
+            required: ['email'],
+            additionalProperties: false,
+          },
+          null,
+          2,
+        ),
+      },
+    })
+
+    await waitFor(() =>
+      expect(
+        within(screen.getByTestId('schema-preview')).getByLabelText(/email/),
+      ).toBeInTheDocument(),
+    )
+  })
+
+  it('disables the preview cleanly while the schema has a raw parse error', async () => {
+    const user = userEvent.setup()
+    renderForm()
+
+    await user.click(screen.getByRole('button', { name: /preview form/i }))
+
+    await user.click(screen.getByRole('tab', { name: /raw json/i }))
+    fireEvent.change(screen.getByLabelText('Schema JSON'), {
+      target: { value: '{\n  "type": "object",\n  "properties": {\n}' },
+    })
+
+    await waitFor(
+      () =>
+        expect(screen.getByTestId('schema-preview').textContent).toMatch(
+          /preview.*unavailable/i,
+        ),
+      { timeout: 3000 },
+    )
+  })
 })

@@ -10,7 +10,7 @@ The core is schema-driven: schemas and records are grouped under user-created wo
 
 | Done | Next (Phase 1.5) | Planned |
 | --- | --- | --- |
-| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge, F-05 Tabbed schema editor, F-06 Workspaces, F-07 Record CRUD | F-07a Schema form & validation preview, F-07b Rich text field + editor, F-12 Visual schema builder, F-12a Advanced validation rules | F-08 → F-48 |
+| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge, F-05 Tabbed schema editor, F-06 Workspaces, F-07 Record CRUD, F-07a Form preview | F-07b Rich text field + editor, F-12 Visual schema builder, F-12a Advanced validation rules | F-08 → F-48 |
 
 ### Implemented
 
@@ -70,6 +70,14 @@ The core is schema-driven: schemas and records are grouped under user-created wo
 - **Write-path validation**: every adapter handed to `getStorage()` is wrapped by `withRecordValidation`, so `createRecord`/`updateRecord` reject data that does not match its schema (`StorageError` `VALIDATION`) — raw import paths cannot persist invalid records
 - **Schema defaults applied on create**: `default` keywords are prefilled in the form and filled in again at the storage boundary, so they can never be lost
 - Schema cards now drill into a Records view (with a back link); tested with `fake-indexeddb` (unit + write-path + full lifecycle)
+
+**F-07a Schema form & validation preview**
+
+- Live preview panel inside the schema editor (visible on the Builder and Raw tabs) renders the record form the current schema produces — the same F-04→F-07 engine the record screen uses
+- Interactive validation shows the write-path-equal field errors as you type; auto-fill buttons load a valid sample (or a deliberately invalid one so errors light up)
+- Paste a record blob to validate it against the schema with errors mapped to fields; `unsupported[]`/advanced keyword fields degrade to a generic input flagged "advanced — not validated"
+- Read-only live JSON Schema mirror; an invalid schema disables the preview cleanly with the raw parse error and never blocks editing (debounced via `useDeferredValue` for large schemas)
+- Deterministic sample-data generator (`generateSampleData`/`generateInvalidSampleData`) that respects lengths, bounds, `multipleOf`, `enum`/`const`/`default`, formats, nesting, and `minItems`
 
 ## Planned Features
 

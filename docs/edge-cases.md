@@ -32,8 +32,9 @@ Categories: **STO** storage · **CON** concurrency · **OFF** offline · **DAT**
 | DAT-06 | Restore old schema version that invalidates records | Records re-validated; non-conforming ones flagged with revert/migrate choice, never dropped | F-30 | TBD |
 | DAT-07 | Import a file with invalid/malformed data | Clear, actionable error; nothing partially persisted | F-26/F-27 | TBD |
 | DAT-08 | Import/export round-trip incl. unicode, empty, nested, ids/references | Lossless; all field types and metadata preserved | F-26/F-28 | TBD |
-| DAT-09 | Pasted-data validation in form preview | Errors mapped to fields; `unsupported[]` keywords flagged | F-07a/F-04 | TBD |
-| DAT-10 | Invalid schema while preview panel open | Preview disables cleanly with raw parse error; editing never blocked | F-07a | TBD |
+| DAT-09 | Pasted-data validation in form preview | Errors mapped to fields; `unsupported[]` keywords flagged | F-07a/F-04 | `schema-preview.test.tsx` pasted + advanced flags |
+| DAT-10 | Invalid schema while preview panel open | Preview disables cleanly with raw parse error; editing never blocked | F-07a | `schema-preview.test.tsx` disable; `schema-form.test.tsx` disable |
+| DAT-16 | Auto-filled sample never satisfies the schema | Preview's generated sample must validate for supported constraints; invalid sample must fail | F-07a | `sample-data.test.ts` valid/invalid + fast-check |
 | DAT-12 | `object`/`array` field authored in builder | Round-trips builder ↔ raw; type help shown; nesting/item type configurable | F-12/F-05 | TBD |
 | DAT-13 | Rich text field content | Block JSON round-trips create → save → reload and export → import losslessly | F-07b | TBD |
 | DAT-14 | Conditional validation rule violated | Field errors in the form + F-07a preview, and rejected at the write path | F-12a | TBD |

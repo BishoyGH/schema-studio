@@ -91,21 +91,21 @@ These land immediately after F-07, **ahead of F-08**. The app is hard to use wit
 
 ### F-07a. Schema Form & Validation Preview — live "what will my form do" — TOP PRIORITY
 > **Moved up** from Phase 3 (was F-13); the old F-13 entry is kept only as a pointer. The read-only live **JSON Schema mirror** moved here from F-12.
-- [ ] Real-time **live panel** inside the editor (visible in both the Builder tab and Raw tab) that renders the record form the current schema produces, via the F-04 bridge + the F-07 form engine; re-renders as the schema edits (debounced for large schemas)
-- [ ] **Live generated JSON Schema mirror** (read-only) so authors watch the raw JSON update as they edit the Builder; the Raw tab stays the editable copy
-- [ ] Read-only mirror: preview never saves; it only shows what records will look like
-- [ ] **Interactive validation**: typing sample values in the preview shows inline field errors identical to the real record form (F-07)
-- [ ] **Auto-fill sample data**: a button fills a valid record sample per the current schema, and an "invalid variant" view fills one that violates constraints so errors light up
-- [ ] **Validate pasted data**: paste an arbitrary record blob → Zod validates it → errors mapped to fields; passes through the same `unsupported[]` reporting (F-04)
-- [ ] `unsupported[]`/advanced keyword fields degrade to a generic input flagged "advanced — not validated"
-- [ ] Invalid/partial schema → preview disables cleanly with the raw parse error and never blocks editing
-- [ ] Renders F-14 `id` (read-only chip) and `reference` (linked display) fields when present, and the F-07b rich-text field
-- [ ] Keyboard-complete panel toggle, RTL-safe, 44px touch targets (F-33)
-- [ ] [TEST] Form renders per supported types/constraints; live updates on schema edit (property-based round-trip)
-- [ ] [TEST] Interactive validation matches F-07 behavior for the same values
-- [ ] [TEST] Auto-fill valid passes; auto-fill invalid lights the expected field errors
-- [ ] [TEST] Pasted-data validation maps errors to fields incl. `unsupported[]` flags
-- [ ] [TEST] Invalid schema disables preview cleanly; preview parity with touch/keyboard audit
+- [x] Real-time **live panel** inside the editor (visible in both the Builder tab and Raw tab) that renders the record form the current schema produces, via the F-04 bridge + the F-07 form engine; re-renders as the schema edits (debounced for large schemas via `useDeferredValue`)
+- [x] **Live generated JSON Schema mirror** (read-only) so authors watch the raw JSON update as they edit the Builder; the Raw tab stays the editable copy
+- [x] Read-only mirror: preview never saves; it only shows what records will look like
+- [x] **Interactive validation**: typing sample values in the preview shows inline field errors identical to the real record form (F-07)
+- [x] **Auto-fill sample data**: a button fills a valid record sample per the current schema, and an "invalid variant" view fills one that violates constraints so errors light up
+- [x] **Validate pasted data**: paste an arbitrary record blob → Zod validates it → errors mapped to fields; passes through the same `unsupported[]` reporting (F-04)
+- [x] `unsupported[]`/advanced keyword fields degrade to a generic input flagged "advanced — not validated"
+- [x] Invalid/partial schema → preview disables cleanly with the raw parse error and never blocks editing
+- [x] Renders fields through the shared F-07 form engine; F-14 `id`/`reference` and F-07b rich-text kinds degrade to a generic input flagged "advanced — not validated" until those field types land
+- [x] Keyboard-complete panel toggle (native button, `aria-expanded`/`aria-controls`), RTL-safe logical-properties markup, 44px touch targets (full audit at F-33)
+- [x] [TEST] Form renders per supported types/constraints; live updates on schema edit (table-driven + `fast-check` sample-generation round-trip)
+- [x] [TEST] Interactive validation matches F-07 behavior for the same values
+- [x] [TEST] Auto-fill valid passes; auto-fill invalid lights the expected field errors
+- [x] [TEST] Pasted-data validation maps errors to fields incl. `unsupported[]` flags
+- [x] [TEST] Invalid schema disables preview cleanly; preview parity with touch/keyboard audit
 
 ### F-07b. Rich Text / Block Content Field Type + BlockNote Editor — TOP PRIORITY
 - [ ] New field type represented as `x-schema-studio: { "kind": "richText" }` — this **introduces the `x-schema-studio` extension namespace** that F-14 later reuses for `id`/`reference`; preserved by the Raw tab and structural validator (F-03/F-04)

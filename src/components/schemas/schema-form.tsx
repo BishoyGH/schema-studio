@@ -1,9 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Eye } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { SchemaBuilder } from '@/components/schemas/schema-builder'
 import { SchemaDiff } from '@/components/schemas/schema-diff'
+import { SchemaPreview } from '@/components/schemas/schema-preview'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -120,7 +121,8 @@ export function SchemaForm({
 
   const jsonErrorMessage = liveJsonError ?? errors.jsonSchema?.message
 
-  const [showPreview, setShowPreview] = useState(false)
+  const [showDiff, setShowDiff] = useState(false)
+  const [showFormPreview, setShowFormPreview] = useState(false)
   const initialJson = defaultValues.jsonSchema
 
   return (
@@ -226,28 +228,45 @@ export function SchemaForm({
         </TabsContent>
       </Tabs>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Button
           type="button"
           variant="outline"
           size="sm"
-          className="self-start"
-          aria-expanded={showPreview}
+          className="min-h-11 self-start"
+          aria-expanded={showFormPreview}
+          aria-controls="schema-preview-panel"
+          onClick={() => setShowFormPreview((open) => !open)}
+        >
+          <Eye aria-hidden="true" className="size-4" />
+          Preview form
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="min-h-11 self-start"
+          aria-expanded={showDiff}
           aria-controls="schema-diff-panel"
-          onClick={() => setShowPreview((open) => !open)}
+          onClick={() => setShowDiff((open) => !open)}
         >
           <ChevronDown
             aria-hidden="true"
-            className={showPreview ? 'rotate-180 transition-transform' : 'transition-transform'}
+            className={showDiff ? 'rotate-180 transition-transform' : 'transition-transform'}
           />
           Preview changes
         </Button>
-        {showPreview && (
-          <div id="schema-diff-panel">
-            <SchemaDiff oldText={initialJson} newText={jsonSchemaText} />
-          </div>
-        )}
       </div>
+      {showFormPreview && (
+        <div id="schema-preview-panel">
+          <SchemaPreview jsonSchemaText={jsonSchemaText} />
+        </div>
+      )}
+      {showDiff && (
+        <div id="schema-diff-panel">
+          <SchemaDiff oldText={initialJson} newText={jsonSchemaText} />
+        </div>
+      )}
 
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
         {onCancel && (

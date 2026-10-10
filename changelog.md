@@ -1,6 +1,34 @@
 # Change Log
 All notable changes to Schema Studio.
 
+## Session 15 - [2026-10-10]
+### Added
+- **F-07a Schema Form & Validation Preview** (complete; F-07b/F-14 field types render via the shared engine until they land):
+  - `src/components/schemas/schema-preview.tsx`: a **live preview panel** in the schema editor, visible on both Builder and Raw tabs, that renders the record form the current schema produces via the F-04 bridge + F-07 engine (`useDeferredValue` debounces recompiles for large schemas)
+  - **Interactive validation**: typing sample values shows the same inline field errors the real record form shows (asserted equal to the write-path messages)
+  - **Auto-fill sample data** + **invalid variant** buttons (valid/forcing-error samples from the schema) that light expected errors up front
+  - **Validate pasted data**: paste a record blob → Zod validates it → errors map to fields, with `unsupported[]`/advanced-keyword fields degraded to a generic input flagged "advanced — not validated"
+  - **Read-only live JSON Schema mirror** so authors watch the raw JSON update while editing the Builder; the Raw tab stays the editable copy
+  - Invalid/partial schema → preview disables cleanly with the raw parse error and never blocks editing; toggle is keyboard-complete (`aria-expanded`/`aria-controls`), RTL-safe, 44px targets
+- `src/lib/schemas/sample-data.ts`: `generateSampleData`/`generateInvalidSampleData` respecting constraints (lengths, bounds, `multipleOf`, `enum`/`const`/`default`, `format`), nesting objects, and filling arrays to `minItems`
+- `src/lib/schemas/preview.ts`: `schemaUnsupportedNotes`/`fieldAdvancedNotes` (per-field "advanced — not validated" flags)
+- `RecordForm` gains opt-in `validateOnMount` and a `bare` mode (no nested `<form>` when embedded in the schema editor) plus an `onInvalid` callback so embedded consumers see write-path-equivalent failures
+
+### Tests
+- [x] `src/lib/schemas/sample-data.test.ts` (12): valid sample validates, constraints respected, nesting/arrays/enum/default/union/const/null, known-properties-only, invalid variant fails per-field, graceful wildcard/boolean degradation, and a **fast-check** (100 runs) that generated samples always validate
+- [x] `src/components/schemas/schema-preview.test.tsx` (8): all field types + mirror, live update on schema change, field errors equal the write path, valid auto-fill passes, invalid auto-fill lights errors, pasted-data errors + advanced flags, non-object paste rejection, clean disable on invalid schema
+- [x] `src/components/schemas/schema-form.test.tsx` (3 new): keyboard toggle visible on both tabs, live preview updates as the schema is edited, preview disables cleanly on a raw parse error
+- [x] `lint` -> `typecheck` -> `test` (155 passing) -> `build` all green
+
+### Decisions
+- Reused the real `RecordForm` (same engine + resolver the record screen uses) instead of a parallel "fake preview", so preview errors are by construction the ones the write path rejects
+- Added `bare` mode + `onInvalid` to `RecordForm` rather than copying the form: embedding a `<form>` inside the schema editor's `<form>` is invalid HTML, and `handleSubmit` otherwise drops invalid results
+- Sample generation is deterministic and constraint-aware (defaults/`enum`/`const` win); unparseable `pattern` falls back gracefully rather than failing auto-fill
+- Ordered the F-07a handover entry item-by-item; the F-14 `id`/`reference` and F-07b rich-text renderers are forward-degraded ("advanced — not validated") until those field types exist
+
+### Edge Cases
+- Canon `DAT-09`/`DAT-10` test refs filled; added **DAT-16** (auto-filled sample must validate; invalid sample must fail) with refs in `sample-data.test.ts`
+
 ## Session 1 - [2026-10-09]
 ### Added
 - Created `handover.md` with complete feature backlog organized by priority (critical → fancy), each feature paired with corresponding tests

@@ -1,6 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Controller, useForm, type FieldValues, type UseFormRegister } from 'react-hook-form'
+import {
+  Controller,
+  useForm,
+  type FieldErrors,
+  type FieldValues,
+  type UseFormRegister,
+} from 'react-hook-form'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,7 +24,10 @@ import {
   recordDefaults,
   type RecordFieldDescriptor,
 } from '@/lib/records/fields'
-import { recordZodSchema } from '@/lib/records/validation'
+import {
+  recordZodSchema,
+  type RecordFieldError,
+} from '@/lib/records/validation'
 
 interface RecordFormProps {
   jsonSchema: Record<string, unknown>
@@ -26,7 +35,20 @@ interface RecordFormProps {
   submitLabel: string
   isSubmitting?: boolean
   errorMessage?: string | null
+  validateOnMount?: boolean
+  /**
+   * Render without a `<form>` element so the form can be embedded inside
+   * another form (e.g. the F-07a preview inside the schema editor). The submit
+   * button then triggers validation imperatively.
+   */
+  bare?: boolean
   onSubmit: (data: Record<string, unknown>) => void
+  /**
+   * Called when the submit validates the current values against the schema but
+   * they are invalid. Lets embedded consumers (the F-07a preview) report the
+   * same failure their write path would reject.
+   */
+  onInvalid?: (errors: RecordFieldError[]) => void
   onCancel?: () => void
 }
 
@@ -278,7 +300,10 @@ export function RecordForm({
   submitLabel,
   isSubmitting = false,
   errorMessage,
+  validateOnMount = false,
+  bare = false,
   onSubmit,
+  onInvalid,
   onCancel,
 }: RecordFormProps) {
   const { schema } = useMemo(() => recordZodSchema(jsonSchema), [jsonSchema])
@@ -293,6 +318,7 @@ export function RecordForm({
     register,
     handleSubmit,
     control,
+    trigger,
     formState: { errors },
   } = useForm<Record<string, unknown>>({
     resolver: zodResolver(
@@ -302,12 +328,32 @@ export function RecordForm({
     mode: 'onChange',
   })
 
-  return (
-    <form
-      noValidate
-      onSubmit={handleSubmit((data) => onSubmit(data))}
-      className="flex flex-col gap-5"
-    >
+  useEffect(() => {
+    if (validateOnMount) void trigger()
+  }, [validateOnMount, trigger])
+
+  const mapInvalid = (fieldErrors: FieldErrors<Record<string, unknown>>) => {
+    if (!onInvalid) return
+    const entries: RecordFieldError[] = []
+    for (const [path, error] of Object.entries(fieldErrors)) {
+      if (!error) continue
+      const message =
+        typeof error.message === 'string'
+          ? error.message
+          : typeof error === 'string'
+            ? error
+            : undefined
+      if (message) entries.push({ path, message })
+    }
+    onInvalid(entries)
+  }
+
+  const submit = handleSubmit(
+    (data) => onSubmit(data),
+    (errors) => mapInvalid(errors),
+  )
+  const content = (
+    <>
       {fields.length === 0 ? (
         <p className="text-muted-foreground text-sm" role="note">
           This schema has no editable fields. Add properties to the schema to
@@ -341,10 +387,29 @@ export function RecordForm({
             Cancel
           </Button>
         )}
-        <Button type="submit" disabled={isSubmitting}>
+        <Button
+          type={bare ? 'button' : 'submit'}
+          disabled={isSubmitting}
+          onClick={
+            bare
+              ? () => {
+                  void submit()
+                }
+              : undefined
+          }
+        >
           {isSubmitting ? 'Saving…' : submitLabel}
         </Button>
       </div>
-    </form>
+    </>
   )
+
+  if (!bare) {
+    return (
+      <form noValidate onSubmit={submit} className="flex flex-col gap-5">
+        {content}
+      </form>
+    )
+  }
+  return <div className="flex flex-col gap-5">{content}</div>
 }
