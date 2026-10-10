@@ -238,7 +238,7 @@ export function SchemaForm({
             type="button"
             variant="outline"
             size="sm"
-            className="min-h-11 self-start"
+            className="max-md:min-h-11 self-start"
             aria-expanded={showFormPreview}
             aria-controls="schema-preview-panel"
             onClick={() => setShowFormPreview((open) => !open)}

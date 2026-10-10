@@ -56,12 +56,12 @@ Categories: **STO** storage · **CON** concurrency · **OFF** offline · **DAT**
 | A11Y-01 | Interactive element smaller than 44px | Touch-target audit fails CI | F-33/F-42 | TBD |
 | A11Y-02 | Mouse-free workflow | Every view driveable by keyboard incl. dialogs (focus traps, visible rings) | F-23 | TBD |
 | A11Y-03 | Screen-reader parity mobile/desktop nav | Same route set reachable and labeled on both | F-34 | TBD |
-| A11Y-04 | Compact desktop density on a 320px viewport | Interactive controls remain ≥44px at the `320px` breakpoint despite compact desktop sizing | F-53/F-32/F-33 | TBD |
+| A11Y-04 | Compact desktop density on a 320px viewport | Interactive controls remain ≥44px at the `320px` breakpoint despite compact desktop sizing | F-53/F-32/F-33 | `design-system.test.tsx` |
 | UI-01 | 320px viewport | Zero horizontal overflow; tables degrade to cards; all controls reachable | F-32 | TBD |
 | UI-02 | Empty workspace/schema/record list | Renders helpful empty state; first-run onboarding guides | F-16/F-06/F-08/F-09 | F-06 covered by `workspaces.test.tsx`; dashboard empty state by `dashboard.test.tsx`; F-16 onboarding TBD |
 | UI-03 | Component crashes | Error boundary fallback; app stays usable | F-39 | TBD |
 | UI-04 | IndexedDB power/coverage failure | Graceful error UI; no data corruption | F-39 | TBD |
-| UI-05 | Hardcoded color or physical CSS property in source | Token-only + logical-properties static scan fails CI | F-53/F-20 | TBD |
+| UI-05 | Hardcoded color or physical CSS property in source | Token-only + logical-properties static scan fails CI | F-53/F-20 | `design-system.test.tsx` |
 | UI-06 | Schema with 50+ fields in the builder | Fields outline stays usable at a constant footprint (scrollable/searchable); search filters rows and the detail pane remains clear | F-12/F-54 | TBD |
 | Q-01 | Create/update/delete schema or record | TanStack Query cache invalidated; lists rebuild correctly | F-08 | TBD |
 | Q-02 | Setting change via hook | Query returns updated value; persists across reload | F-16 | `queries.ts` |

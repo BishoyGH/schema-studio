@@ -389,7 +389,7 @@ export function SchemaBuilder({ value, onChange }: SchemaBuilderProps) {
                     )}
                   </div>
 
-                  <label className="flex min-h-9 cursor-pointer items-center gap-2 text-sm">
+                  <label className="flex min-h-9 max-md:min-h-11 cursor-pointer items-center gap-2 text-sm">
                     <input
                       type="checkbox"
                       className="size-4"
@@ -448,7 +448,7 @@ export function SchemaBuilder({ value, onChange }: SchemaBuilderProps) {
 
             <label
               className={cn(
-                'flex min-h-9 items-center gap-2 text-sm',
+                'flex min-h-9 max-md:min-h-11 items-center gap-2 text-sm',
                 invalid ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
               )}
             >

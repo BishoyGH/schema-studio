@@ -138,7 +138,7 @@ export function SchemaPreview({ jsonSchemaText }: SchemaPreviewProps) {
           type="button"
           variant="outline"
           size="sm"
-          className="min-h-11"
+          className="max-md:min-h-11"
           onClick={() => {
             setMode('sample')
             applySeed(generateSampleData(doc))
@@ -151,7 +151,7 @@ export function SchemaPreview({ jsonSchemaText }: SchemaPreviewProps) {
           type="button"
           variant="outline"
           size="sm"
-          className="min-h-11"
+          className="max-md:min-h-11"
           onClick={() => {
             setMode('invalid')
             applySeed(generateInvalidSampleData(doc))
@@ -215,7 +215,7 @@ export function SchemaPreview({ jsonSchemaText }: SchemaPreviewProps) {
           type="button"
           variant="secondary"
           size="sm"
-          className="min-h-11 self-start"
+          className="max-md:min-h-11 self-start"
           onClick={applyPaste}
         >
           <FileInput aria-hidden="true" className="size-4" />
@@ -244,7 +244,7 @@ export function SchemaPreview({ jsonSchemaText }: SchemaPreviewProps) {
       )}
 
       <p className="text-muted-foreground flex items-center gap-1 text-xs">
-        <TriangleAlert aria-hidden="true" className="size-3.5 text-amber-500" />
+        <TriangleAlert aria-hidden="true" className="size-3.5 text-warning" />
         This preview never persists — records are only saved from the Records
         screen.
       </p>

@@ -48,11 +48,11 @@ export function AppNav({ workspaceId, onNavigate }: AppNavProps) {
           activeOptions={{ exact: item.exact }}
           onClick={onNavigate}
           className={cn(
-            'flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground',
+            'relative flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors before:absolute before:inset-y-1.5 before:start-0 before:w-0.5 before:rounded-full before:bg-transparent hover:bg-accent hover:text-accent-foreground md:min-h-9',
           )}
           activeProps={{
             className:
-              'bg-accent text-accent-foreground',
+              'bg-accent text-accent-foreground before:bg-primary',
           }}
         >
           <item.icon aria-hidden="true" className="size-4 shrink-0" />

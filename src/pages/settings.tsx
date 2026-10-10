@@ -48,7 +48,7 @@ export function SettingsPage() {
         description="Preferences are stored locally in your browser and work offline."
       />
 
-      <Card className="py-5">
+      <Card className="py-4">
         <CardHeader className="px-4 sm:px-6">
           <CardTitle>Appearance</CardTitle>
           <CardDescription>Choose how Schema Studio looks.</CardDescription>
@@ -77,7 +77,7 @@ export function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card className="py-5">
+      <Card className="py-4">
         <CardHeader className="px-4 sm:px-6">
           <CardTitle>More settings coming soon</CardTitle>
           <CardDescription>

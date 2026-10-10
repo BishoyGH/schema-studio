@@ -73,8 +73,8 @@ export function RecordEditorPage() {
       <PageContainer>
         <Skeleton className="h-8 w-48" />
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
-          <Skeleton className="h-96 rounded-xl" />
-          <Skeleton className="h-64 rounded-xl" />
+          <Skeleton className="h-96 rounded-lg" />
+          <Skeleton className="h-64 rounded-lg" />
         </div>
       </PageContainer>
     )
@@ -144,7 +144,7 @@ export function RecordEditorPage() {
       />
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
-        <Card className="py-5">
+        <Card className="py-4">
           <CardContent className="px-4 sm:px-6">
             <RecordForm
               key={recordId ?? 'new'}
@@ -159,9 +159,9 @@ export function RecordEditorPage() {
           </CardContent>
         </Card>
 
-        <Card className="hidden gap-3 py-5 lg:flex">
+        <Card className="hidden gap-3 py-4 lg:flex">
           <CardHeader className="px-4">
-            <CardTitle className="flex items-center gap-2 text-base">
+            <CardTitle className="flex items-center gap-2">
               <Info aria-hidden="true" className="size-4" />
               About this schema
             </CardTitle>

@@ -9,7 +9,7 @@ export function PageContainer({
     <section
       data-slot="page-container"
       className={cn(
-        'mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8',
+        'mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-5 sm:px-6 lg:px-8',
         className,
       )}
       {...props}
@@ -31,11 +31,11 @@ export function PageHeader({
   breadcrumb,
 }: PageHeaderProps) {
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-2.5">
       {breadcrumb}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+          <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
           {description && (
             <p className="text-muted-foreground text-sm">{description}</p>
           )}

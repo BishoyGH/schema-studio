@@ -173,7 +173,7 @@ function RecordField({ field, register, control, error }: FieldProps) {
           name={field.name}
           control={control}
           render={({ field: controlled }) => (
-            <label className="flex min-h-9 cursor-pointer items-center gap-2 text-sm">
+            <label className="flex min-h-9 max-md:min-h-11 cursor-pointer items-center gap-2 text-sm">
               <input
                 id={id}
                 type="checkbox"

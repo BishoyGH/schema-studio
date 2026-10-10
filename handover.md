@@ -31,10 +31,9 @@ Every feature carries a priority tag: **P0** now · **P1** next · **P2** later 
 Work top-down. This list — not the physical position of a feature block — decides sequence.
 
 **P0 — now**
-1. **F-53** Compact SaaS Design System v2 (refines F-49; lands first so everything below is built in its final visual home)
-2. **F-54** Schema Editor — Three-Pane Studio (hosts F-07a + the F-12 builder)
-3. **F-12** Visual Schema Builder (uses the locked builder architecture: outline + detail inspector + field-type registry)
-4. **F-12a** Advanced & Conditional Validation Rules
+1. **F-54** Schema Editor — Three-Pane Studio (hosts F-07a + the F-12 builder) — *F-53 Compact SaaS Design System v2 ✓*
+2. **F-12** Visual Schema Builder (uses the locked builder architecture: outline + detail inspector + field-type registry)
+3. **F-12a** Advanced & Conditional Validation Rules
 
 **P1 — next**
 F-07c · F-11 · F-08 · F-09 · F-10 · F-14 · F-14a · F-15
@@ -62,7 +61,7 @@ F-32 · F-33 · F-34 · F-35 · F-36 · F-37 · F-38 · F-39 · F-40 · F-41 · 
 | F-09 | Record browser | 1 | P1 | planned |
 | F-10 | Offline-first operations | 1 | P1 | planned |
 | F-11 | CI quality gate | 2 | P1 | planned |
-| F-12 | Visual schema builder | 1.5 | P0 | next |
+| F-12 | Visual schema builder | 1.5 | P0 | planned |
 | F-12a | Advanced validation rules | 1.5 | P0 | planned |
 | F-13 | (pointer → F-07a) | 3 | — | moved |
 | F-14 | IDs & relationships | 3 | P1 | planned |
@@ -105,7 +104,7 @@ F-32 · F-33 · F-34 · F-35 · F-36 · F-37 · F-38 · F-39 · F-40 · F-41 · 
 | F-50 | App shell & routing | 1.75 | P0 | done |
 | F-51 | Dashboard | 1.75 | P0 | done |
 | F-52 | Page-based editors | 1.75 | P0 | done |
-| F-53 | Compact SaaS design system v2 | 1.75 | P0 | next |
+| F-53 | Compact SaaS design system v2 | 1.75 | P0 | done |
 | F-54 | Schema editor studio (three-pane) | 1.75 | P0 | next |
 | F-07c | Rich editor code-block highlighting | 1.75 | P1 | planned |
 
@@ -309,15 +308,15 @@ The app today is a single centered `max-w-3xl` column with no persistent navigat
 
 ### F-53. Compact SaaS Design System v2 — P0
 > Refines the F-49 primitives from a "roomy default" look into a compact, professional SaaS density applied **app-wide**, with a single cohesive accent. Lands first so the builder (F-12) and studio (F-54) are built in their final visual home.
-- [ ] Token/scale overhaul in `src/index.css`: base text `14px/1.5`, meta `12px`, micro labels `11px` uppercase tracking-wide; page title `text-xl` semibold/tight; section/card titles `text-sm` semibold
-- [ ] Compact control density: default control `h-8` (32px), prominent `h-9`, icon `size-8`, card padding `16px`, section gap `20px`, radius `0.5rem`; on `<md` bump interactive targets back to ≥44px (F-32/F-33)
-- [ ] Accent: one **indigo** primary (`--primary`/`--ring`/`--accent`) for buttons, active nav, focus rings, and links; add `--success`/`--warning`/`--info` tokens + badge variants; replace ad-hoc `text-amber-500` and workspace hex swatches with tokens
-- [ ] Fix dark-mode contrast (e.g. `bg-muted` skeletons); every color is a Tailwind v4 CSS variable, no hardcoded hex — extends F-18/F-19
-- [ ] Resize the shared primitives (`button`, `input`, `textarea`, `select`, `badge`, `tabs`, `card`, `skeleton`, `table`, `dialog`, `dropdown-menu`) and the shell (sidebar `w-56`, header `h-12`/`h-14`, indigo active-nav indicator) to the new density
-- [ ] RTL-safe throughout (logical properties only) — pairs with F-20
-- [ ] Applies across every page (dashboard, schema list, schema editor, record pages, workspace editor, settings) — no page keeps the old scale
-- [ ] [TEST] Primitives render at the new sizes and remain keyboard operable; a token-only scan finds no hardcoded colors (pairs with the F-20 static scan)
-- [ ] [TEST] Density regression: interactive controls are ≥44px at the `320px` breakpoint (pairs with A11Y-04)
+- [x] Token/scale overhaul in `src/index.css`: base text `14px/1.5`, meta `12px`, micro labels `11px` uppercase tracking-wide; page title `text-xl` semibold/tight; section/card titles `text-sm` semibold
+- [x] Compact control density: default control `h-8` (32px), prominent `h-9`, icon `size-8`, card padding `16px`, section gap `20px`, radius `0.5rem`; on `<md` bump interactive targets back to ≥44px (F-32/F-33)
+- [x] Accent: one **indigo** primary (`--primary`/`--ring`/`--accent`) for buttons, active nav, focus rings, and links; add `--success`/`--warning`/`--info` tokens + badge variants; replace ad-hoc `text-amber-500` and workspace hex swatches with tokens
+- [x] Fix dark-mode contrast (e.g. `bg-muted` skeletons); every color is a Tailwind v4 CSS variable, no hardcoded hex — extends F-18/F-19
+- [x] Resize the shared primitives (`button`, `input`, `textarea`, `select`, `badge`, `tabs`, `card`, `skeleton`, `table`, `dialog`, `dropdown-menu`) and the shell (sidebar `w-56`, header `h-12`/`h-14`, indigo active-nav indicator) to the new density
+- [x] RTL-safe throughout (logical properties only) — pairs with F-20
+- [x] Applies across every page (dashboard, schema list, schema editor, record pages, workspace editor, settings) — no page keeps the old scale
+- [x] [TEST] Primitives render at the new sizes and remain keyboard operable; a token-only scan finds no hardcoded colors (pairs with the F-20 static scan) — `src/components/ui/design-system.test.tsx`
+- [x] [TEST] Density regression: interactive controls are ≥44px at the `320px` breakpoint (pairs with A11Y-04) — `src/components/ui/design-system.test.tsx`
 
 ### F-54. Schema Editor — Three-Pane Studio — P0
 > Redesigns the F-52 page-based schema editor around the F-12 builder. Re-hosts F-03/F-05/F-07a components; Raw JSON stays a first-class mode.
@@ -663,7 +662,7 @@ A standing, cross-cutting test mechanism that runs at **every phase boundary** t
 
 ## Next Session Checklist
 - [ ] Read `changelog.md` for what the last session completed
-- [ ] Pick the top item of the [Priority list](#priority-single-source-of-truth) (NOT the physical position of a feature block). **Start with F-53 (Compact SaaS Design System v2), then F-54 (Schema Editor Three-Pane Studio), then F-12 (Visual Schema Builder) using the locked outline + detail + field-type-registry architecture — the builder plugs into the studio's left/center panes.**
+- [ ] Pick the top item of the [Priority list](#priority-single-source-of-truth) (NOT the physical position of a feature block). **Start with F-54 (Schema Editor Three-Pane Studio), then F-12 (Visual Schema Builder) using the locked outline + detail + field-type-registry architecture — the builder plugs into the studio's left/center panes.** (F-53 Compact SaaS Design System v2 is done.)
 - [ ] Implement feature **and** its paired `[TEST]` items
 - [ ] Run the **Edge-Case Sweep** (see Testing Strategy) at phase boundaries; add any new edge cases to `docs/edge-cases.md` with tests
 - [ ] Run `lint -> typecheck -> test`

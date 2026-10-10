@@ -76,8 +76,8 @@ export function SchemaEditorPage() {
       <PageContainer>
         <Skeleton className="h-8 w-48" />
         <div className="grid gap-6 lg:grid-cols-2">
-          <Skeleton className="h-96 rounded-xl" />
-          <Skeleton className="h-96 rounded-xl" />
+          <Skeleton className="h-96 rounded-lg" />
+          <Skeleton className="h-96 rounded-lg" />
         </div>
       </PageContainer>
     )

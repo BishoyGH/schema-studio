@@ -75,7 +75,7 @@ export function SchemaListPage() {
       {isLoading && (
         <div className="grid gap-3 sm:grid-cols-2">
           {[0, 1, 2, 3].map((key) => (
-            <Skeleton key={key} className="h-36 rounded-xl" />
+            <Skeleton key={key} className="h-36 rounded-lg" />
           ))}
         </div>
       )}

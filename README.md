@@ -10,7 +10,7 @@ The core is schema-driven: schemas and records are grouped under user-created wo
 
 | Done | Next | Planned |
 | --- | --- | --- |
-| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge, F-05 Tabbed schema editor, F-06 Workspaces, F-07 Record CRUD, F-07a Form preview, F-07b Rich text field + editor, F-49 Design system primitives + theme toggle, F-50 App shell & routing, F-51 Dashboard, F-52 Page-based editors | F-53 Compact SaaS design system v2, F-54 Schema editor studio, F-12 Visual schema builder, F-12a Advanced validation rules, F-07c Code-block highlighting | F-08 → F-48 |
+| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge, F-05 Tabbed schema editor, F-06 Workspaces, F-07 Record CRUD, F-07a Form preview, F-07b Rich text field + editor, F-49 Design system primitives + theme toggle, F-50 App shell & routing, F-51 Dashboard, F-52 Page-based editors, F-53 Compact SaaS design system v2 | F-54 Schema editor studio, F-12 Visual schema builder, F-12a Advanced validation rules, F-07c Code-block highlighting | F-08 → F-48 |
 
 ### Implemented
 

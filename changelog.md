@@ -1,6 +1,20 @@
 # Change Log
 All notable changes to Schema Studio.
 
+## Session 19 - [2026-10-10]
+### Added
+- **F-53 Compact SaaS Design System v2** — the F-49 primitives are now compact and consistent app-wide:
+  - `src/index.css`: new `text-2xs` micro-label step (11px), `success`/`warning`/`info` color tokens (light + dark), `--overlay` token, one **indigo** primary/ring/accent, `--radius: 0.5rem`, base `body` at `0.875rem/1.5`, and six `--swatch-*` tokens replacing the ad-hoc workspace hex swatches
+  - Shared primitives resized to compact density with a `<md` touch bump back to ≥44px: `button` (`h-8`/`h-9`/`size-8`, default + sm + lg + icon), `input`/`textarea` (`h-8`), `select` trigger (`h-8`/`h-7`), `tabs` list (`h-9`), `card` (`gap-4 py-4`, `text-sm` title, `px-4`), `table` head (`h-9`), `dialog` (`p-5`, `text-base` title), `dropdown-menu` items (`max-md:min-h-11`)
+  - `badge`: new `success`/`warning`/`info` variants; `skeleton`: `bg-accent` → `bg-muted` (dark-contrast fix)
+  - Shell density: sidebar `w-56`, header `h-12`, RTL-safe indigo active-nav indicator in `app-nav.tsx`; page `PageHeader` title `text-2xl` → `text-xl`, section gap `gap-5`
+  - Token-only colors: replaced `text-amber-500` with `text-warning`, workspace hex swatches with `var(--swatch-*)`, `bg-black/50` with `bg-overlay`, `text-white` with `text-destructive-foreground`, and physical utilities (`right-4`/`right-2`/`pl-2`/`pr-8`) with logical ones (`end-4`/`end-2`/`ps-2`/`pe-8`) — app-wide, incl. skeletons (`rounded-xl` → `rounded-lg`)
+
+### Tests
+- [x] `src/components/ui/design-system.test.tsx` (new, 10): compact primitive density (`h-8`/`h-9`/`size-8` + `max-md:h-11`/`max-md:size-11`/`min-h-16`), `success`/`warning`/`info` badges, token-only static scan (no hex, no Tailwind palette colors, no physical spacing/positioning), and a mobile density regression asserting ≥44px targets below `md`
+- [x] `lint` → `typecheck` → `test` (182 passing across 20 files) → `build` all green (lint/build emit known warnings only)
+- [x] Edge-Case Canon: **UI-05** and **A11Y-04** test refs filled (`design-system.test.tsx`)
+
 ## Session 18 - [2026-10-10]
 ### Added (planning docs only — no code changed this session)
 - **F-53 Compact SaaS Design System v2**: the F-49 primitives are refined from a roomy default into a compact, professional SaaS density applied app-wide — base `14px/1.5` / meta `12px` / micro `11px`, `h-8`/`h-9` controls, `16px` card padding, `text-xl` page titles, `0.5rem` radius, a single **indigo** accent token, `success`/`warning`/`info` tokens, token-only colors (no hex), and ≥44px targets on `<md`. Landed first in the backlog so F-54/F-12 are built in their final visual home

@@ -45,7 +45,7 @@ function StatCard({ label, value, icon: Icon }: StatCardProps) {
           <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
             {label}
           </span>
-          <span className="text-3xl font-semibold tabular-nums">
+          <span className="text-2xl font-semibold tabular-nums">
             {value.toLocaleString()}
           </span>
         </div>
@@ -144,7 +144,7 @@ export function DashboardPage() {
       {isLoading ? (
         <div className="grid gap-3 sm:grid-cols-3">
           {[0, 1, 2].map((key) => (
-            <Skeleton key={key} className="h-24 rounded-xl" />
+            <Skeleton key={key} className="h-24 rounded-lg" />
           ))}
         </div>
       ) : (
@@ -183,9 +183,9 @@ export function DashboardPage() {
       )}
 
       {!isLoading && recentSchemas.length > 0 && (
-        <Card className="gap-3 py-5">
+        <Card className="gap-3 py-4">
           <CardHeader className="px-4">
-            <CardTitle className="text-base">Recent schemas</CardTitle>
+            <CardTitle>Recent schemas</CardTitle>
             <CardDescription>
               Jump back into the schemas you touched last.
             </CardDescription>

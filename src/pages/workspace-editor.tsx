@@ -16,12 +16,12 @@ import {
 } from '@/lib/workspaces/queries'
 
 const WORKSPACE_COLORS = [
-  '#6366f1',
-  '#0ea5e9',
-  '#10b981',
-  '#f59e0b',
-  '#ef4444',
-  '#a855f7',
+  'var(--swatch-1)',
+  'var(--swatch-2)',
+  'var(--swatch-3)',
+  'var(--swatch-4)',
+  'var(--swatch-5)',
+  'var(--swatch-6)',
 ] as const
 
 /** Full-page workspace create/edit (F-52). */
@@ -86,7 +86,7 @@ export function WorkspaceEditorPage() {
     return (
       <PageContainer className="max-w-2xl">
         <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-64 rounded-xl" />
+        <Skeleton className="h-64 rounded-lg" />
       </PageContainer>
     )
   }
@@ -132,7 +132,7 @@ export function WorkspaceEditorPage() {
         description="Workspaces group related schemas and records together."
       />
 
-      <Card className="py-5">
+      <Card className="py-4">
         <CardContent className="flex flex-col gap-5 px-4 sm:px-6">
           <div className="flex flex-col gap-2">
             <Label htmlFor="workspace-name">Name</Label>

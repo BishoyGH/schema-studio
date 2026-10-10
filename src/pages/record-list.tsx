@@ -116,7 +116,7 @@ export function RecordListPage() {
       )}
 
       {records && records.length > 0 && schema && (
-        <div className="rounded-xl border bg-background">
+        <div className="rounded-lg border bg-background">
           <Table>
             <TableHeader>
               <TableRow>

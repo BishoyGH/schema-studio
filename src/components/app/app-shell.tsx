@@ -36,13 +36,13 @@ export function AppShell() {
 
   return (
     <div className="flex min-h-svh bg-muted/30">
-      <aside className="hidden w-60 shrink-0 flex-col gap-3 border-e bg-background p-3 md:flex">
+      <aside className="hidden w-56 shrink-0 flex-col gap-3 border-e bg-background p-3 md:flex">
         <Brand />
         <AppNav workspaceId={workspaceId} />
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background/95 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+        <header className="sticky top-0 z-30 flex h-12 items-center gap-2 border-b bg-background/95 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <Button
@@ -55,7 +55,7 @@ export function AppShell() {
                 <Menu aria-hidden="true" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-64 p-3">
+            <SheetContent side="left" className="w-56 p-3">
               <SheetTitle className="sr-only">Navigation</SheetTitle>
               <Brand />
               <AppNav
