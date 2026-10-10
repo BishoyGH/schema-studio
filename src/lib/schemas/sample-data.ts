@@ -1,3 +1,5 @@
+import { isRichTextField } from './extension'
+
 const JSON_SCHEMA_TYPES = [
   'object',
   'array',
@@ -7,6 +9,14 @@ const JSON_SCHEMA_TYPES = [
   'boolean',
   'null',
 ] as const
+
+/** A tiny valid rich text document, used for auto-filled samples. */
+const RICH_TEXT_SAMPLE = [
+  {
+    type: 'paragraph',
+    content: [{ type: 'text', text: 'sample', styles: {} }],
+  },
+]
 
 const SAMPLE_FORMAT_VALUES: Record<string, string> = {
   email: 'user@example.com',
@@ -185,6 +195,7 @@ function sampleValue(raw: unknown): unknown {
   if (raw === false) return undefined
   if (!isPlainObject(raw)) return undefined
   const schema = raw
+  if (isRichTextField(schema)) return RICH_TEXT_SAMPLE
   if (Object.prototype.hasOwnProperty.call(schema, 'default')) return schema.default
   if (Object.prototype.hasOwnProperty.call(schema, 'const')) return schema.const
   if (Array.isArray(schema.enum)) {
@@ -253,6 +264,7 @@ function invalidValue(raw: unknown): unknown {
   if (raw === true || raw === false) return 12345
   if (!isPlainObject(raw)) return 12345
   const schema = raw
+  if (isRichTextField(schema)) return '__not-a-document__'
   if (Array.isArray(schema.enum)) return '__not-a-member__'
   if (Object.prototype.hasOwnProperty.call(schema, 'const')) return '__not-const__'
   const types = normalizeTypes(schema)

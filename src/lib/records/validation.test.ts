@@ -195,3 +195,39 @@ describe('recordDefaults', () => {
     expect(defaults).toEqual({ status: 'draft', draft: true, count: 0 })
   })
 })
+describe('rich text fields (F-07b)', () => {
+  const richTextSchema = {
+    type: 'object',
+    properties: {
+      title: { type: 'string' },
+      body: { type: 'array', 'x-schema-studio': { kind: 'richText' } },
+    },
+    required: ['title', 'body'],
+  }
+
+  it('describes a rich text property with the richText kind', () => {
+    const fields = describeRecordFields(richTextSchema)
+    expect(fields.find((field) => field.name === 'body')?.kind).toBe('richText')
+    expect(fields.find((field) => field.name === 'title')?.kind).toBe('string')
+  })
+
+  it('accepts a block document and rejects a non-array value', () => {
+    const valid = validateRecordData(richTextSchema, {
+      title: 't',
+      body: [{ type: 'paragraph', content: [{ type: 'text', text: 'hi' }] }],
+    })
+    expect(valid.success).toBe(true)
+
+    const invalid = validateRecordData(richTextSchema, { title: 't', body: 'hi' })
+    expect(invalid.success).toBe(false)
+    expect(invalid.fieldErrors.map((error) => error.path)).toContain('body')
+  })
+
+  it('prefills an empty rich text document when no default is present', () => {
+    const defaults = recordDefaults(richTextSchema)
+    expect(Array.isArray(defaults.body)).toBe(true)
+    expect(validateRecordData(richTextSchema, { title: 't', ...defaults }).success).toBe(
+      true,
+    )
+  })
+})

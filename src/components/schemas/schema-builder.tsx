@@ -11,6 +11,11 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
+import {
+  isRichTextField,
+  richTextFieldSchema,
+  SCHEMA_STUDIO_KEY,
+} from '@/lib/schemas/extension'
 import { parseJsonSchema } from '@/lib/schemas/validation'
 
 const BUILDER_FIELD_TYPES = [
@@ -21,6 +26,7 @@ const BUILDER_FIELD_TYPES = [
   'null',
   'object',
   'array',
+  'richText',
 ] as const
 
 type BuilderFieldType = (typeof BUILDER_FIELD_TYPES)[number]
@@ -34,6 +40,7 @@ const FIELD_TYPE_HELP: Record<BuilderFieldType, string> = {
   null: 'Always empty (null).',
   object: 'Nested group of named fields (a sub-record).',
   array: 'Ordered list of values.',
+  richText: 'Rich text / block content edited with the block editor.',
 }
 
 /**
@@ -60,6 +67,23 @@ function isFieldType(value: unknown): value is BuilderFieldType {
     typeof value === 'string' &&
     (BUILDER_FIELD_TYPES as readonly string[]).includes(value)
   )
+}
+
+/**
+ * Write a picked builder type back into a field schema. Most types map 1:1 onto
+ * the JSON Schema `type` keyword; `richText` is the F-07b `x-schema-studio`
+ * field type, stored as an array of blocks.
+ */
+function applyBuilderType(
+  schema: Record<string, unknown>,
+  type: BuilderFieldType,
+): void {
+  if (type === 'richText') {
+    Object.assign(schema, richTextFieldSchema())
+    return
+  }
+  schema.type = type
+  if (isRichTextField(schema)) delete schema[SCHEMA_STUDIO_KEY]
 }
 
 function toDocument(text: string): Record<string, unknown> {
@@ -121,14 +145,22 @@ export function SchemaBuilder({ value, onChange }: SchemaBuilderProps) {
   const fields: BuilderField[] = docEditable
     ? Object.entries(properties).map(([key, rawSchema]) => {
         const schema = isPlainObject(rawSchema) ? rawSchema : {}
-        const advancedKeys = Object.keys(schema).filter(
-          (entry) => !['type', 'description'].includes(entry),
-        )
+        const richText = isRichTextField(schema)
+        const advancedKeys = Object.keys(schema).filter((entry) => {
+          if (entry === 'type' || entry === 'description') return false
+          if (entry === SCHEMA_STUDIO_KEY && richText) return false
+          return true
+        })
+        const type: BuilderFieldType | null = richText
+          ? 'richText'
+          : isFieldType(schema.type)
+            ? schema.type
+            : null
         return {
           key,
           schema,
           booleanSchema: typeof rawSchema === 'boolean',
-          type: isFieldType(schema.type) ? schema.type : null,
+          type,
           required: required.includes(key),
           hasAdvancedKeywords:
             typeof rawSchema === 'boolean' || advancedKeys.length > 0,
@@ -323,7 +355,7 @@ export function SchemaBuilder({ value, onChange }: SchemaBuilderProps) {
                       disabled={invalid || field.booleanSchema}
                       onValueChange={(next) =>
                         setPropertySchema(field.key, (schema) => {
-                          schema.type = next
+                          applyBuilderType(schema, next as BuilderFieldType)
                         })
                       }
                     >

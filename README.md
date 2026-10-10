@@ -10,7 +10,7 @@ The core is schema-driven: schemas and records are grouped under user-created wo
 
 | Done | Next (Phase 1.5) | Planned |
 | --- | --- | --- |
-| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge, F-05 Tabbed schema editor, F-06 Workspaces, F-07 Record CRUD, F-07a Form preview | F-07b Rich text field + editor, F-12 Visual schema builder, F-12a Advanced validation rules | F-08 → F-48 |
+| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge, F-05 Tabbed schema editor, F-06 Workspaces, F-07 Record CRUD, F-07a Form preview, F-07b Rich text field + editor | F-12 Visual schema builder, F-12a Advanced validation rules | F-08 → F-48 |
 
 ### Implemented
 
@@ -79,12 +79,20 @@ The core is schema-driven: schemas and records are grouped under user-created wo
 - Read-only live JSON Schema mirror; an invalid schema disables the preview cleanly with the raw parse error and never blocks editing (debounced via `useDeferredValue` for large schemas)
 - Deterministic sample-data generator (`generateSampleData`/`generateInvalidSampleData`) that respects lengths, bounds, `multipleOf`, `enum`/`const`/`default`, formats, nesting, and `minItems`
 
+**F-07b Rich text / block content field type**
+
+- New field type = `{ "type": "array", "x-schema-studio": { "kind": "richText" } }`; this **introduces the `x-schema-studio` extension namespace** (reused later by id/reference fields) and is preserved by the Raw tab and the structural validator
+- Block-based editor (BlockNote) in the record form and the F-07a preview; content is stored as block JSON directly on the record and round-trips create → save → reload losslessly
+- The editor is **lazily loaded** (`React.lazy` + `Suspense`) so the heavy bundle only downloads when a rich text field is actually edited; it respects document direction (`dir`) for future RTL support
+- F-04 bridge maps `richText` → a loosely-validated array of blocks (`z.array(z.unknown())`); an unknown `x-schema-studio` `kind` is reported via `unsupported[]` rather than mis-validated
+- Authorable from the visual builder's type picker; `describeRecordFields` gains a `richText` kind and `recordDefaults` prefills an empty block document; record-list labels/summaries flatten the content to plain text
+
 ## Planned Features
 
 Grouped by dependency (each phase builds on the previous); see `handover.md` for the full, test-paired backlog.
 
 - **Phase 1 — Data model & core CRUD (F-08–F-10)**: schema list+search with a global record index, record browser, offline-first operations (record CRUD F-07 already done)
-- **Phase 1.5 — Authoring UX essentials (F-07a–F-12a, immediate priority)**: live schema form + validation preview (F-07a), rich text / block content field type with a BlockNote editor (F-07b), the full visual schema builder incl. `object` nesting + `array` items (F-12), and advanced/conditional validation rules (F-12a). Promoted ahead of F-08 because authoring is hard to use without them
+- **Phase 1.5 — Authoring UX essentials (F-07a–F-12a, immediate priority)**: live schema form + validation preview (F-07a ✓) and rich text / block content field type with a BlockNote editor (F-07b ✓) are done; the full visual schema builder incl. `object` nesting + `array` items (F-12) and advanced/conditional validation rules (F-12a) remain. Promoted ahead of F-08 because authoring is hard to use without them
 - **Phase 2 — Automated quality gate (F-11)**: GitHub Actions running lint, typecheck, unit, coverage gates, production build, Playwright e2e, PWA/offline e2e, Lighthouse PWA audit, axe accessibility, dependency audit, bundle-size, and the Edge-Case Sweep
 - **Phase 3 — Schema authoring (F-14–F-15)**: auto ids + ObjectId-style reference fields with referential integrity (F-14), calculated/formula fields incl. rollups (F-14a), schema inference (F-15)
 - **Phase 4 — Cross-cutting UX (F-16–F-25)**: app settings (incl. offline profile + first-run onboarding), user/workspace defaults, dark/light/system themes + theme registry, full RTL (incl. rich editor), localization/i18n, keyboard-complete workflows, command palette, undo/redo
@@ -98,7 +106,7 @@ Grouped by dependency (each phase builds on the previous); see `handover.md` for
 - **Frontend**: React, TypeScript, Vite, Tailwind CSS v4, Motion
 - **Forms & validation**: React-hook-form, Zod
 - **Data & state**: TanStack Query, TanStack Table
-- **UI**: Shadcn UI, BlockNote (planned — arrives with the rich text field, F-07b)
+- **UI**: Shadcn UI, BlockNote (rich text / block content editor, F-07b)
 - **Persistence**: IndexedDB (browser-side)
 - **PWA**: vite-plugin-pwa / Workbox (planned)
 - **Testing**: Vitest, React Testing Library, Playwright

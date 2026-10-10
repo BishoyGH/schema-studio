@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dialog'
 import { RecordForm } from '@/components/records/record-form'
 import { describeRecordFields } from '@/lib/records/fields'
+import { richTextPlainText } from '@/lib/records/rich-text'
 import {
   useCreateRecord,
   useDeleteRecord,
@@ -40,6 +41,11 @@ function recordLabel(
 ): string | undefined {
   for (const field of describeRecordFields(schema.jsonSchema)) {
     const value = record.data[field.name]
+    if (field.kind === 'richText') {
+      const text = richTextPlainText(value)
+      if (text) return text
+      continue
+    }
     if (typeof value === 'string' && value.trim()) return value
     if (typeof value === 'number' || typeof value === 'boolean') {
       return String(value)
@@ -48,12 +54,21 @@ function recordLabel(
   return undefined
 }
 
-function recordSummary(record: RecordEntity): string {
-  const entries = Object.entries(record.data)
-  if (entries.length === 0) return 'Empty record'
-  return entries
-    .map(([key, value]) => `${key}: ${describeRecordValue(value)}`)
-    .join('  ·  ')
+function recordSummary(schema: SchemaEntity, record: RecordEntity): string {
+  const fields = describeRecordFields(schema.jsonSchema)
+  const parts: string[] = []
+  for (const field of fields) {
+    const value = record.data[field.name]
+    if (value === undefined) continue
+    if (field.kind === 'richText') {
+      const text = richTextPlainText(value)
+      if (text) parts.push(`${field.name}: ${text}`)
+      continue
+    }
+    parts.push(`${field.name}: ${describeRecordValue(value)}`)
+  }
+  if (parts.length === 0) return 'Empty record'
+  return parts.join('  ·  ')
 }
 
 function formatUpdatedAt(iso: string): string {
@@ -187,7 +202,7 @@ export function RecordManager({ schema, onBack }: RecordManagerProps) {
                       {recordLabel(schema, record) ?? 'Record'}
                     </CardTitle>
                     <CardDescription className="truncate font-mono text-xs">
-                      {recordSummary(record)}
+                      {recordSummary(schema, record)}
                     </CardDescription>
                   </div>
                   <div className="flex shrink-0 items-center gap-1">

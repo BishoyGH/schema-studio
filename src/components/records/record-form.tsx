@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { RichTextField } from '@/components/records/rich-text-field'
 import {
   describeRecordFields,
   recordDefaults,
@@ -228,6 +229,18 @@ function RecordField({ field, register, control, error }: FieldProps) {
               </Select>
             )
           }}
+        />
+      ) : field.kind === 'richText' ? (
+        <Controller
+          name={field.name}
+          control={control}
+          render={({ field: controlled }) => (
+            <RichTextField
+              value={controlled.value}
+              ariaLabel={`${field.name} rich text`}
+              onChange={controlled.onChange}
+            />
+          )}
         />
       ) : field.kind === 'json' ? (
         <Controller

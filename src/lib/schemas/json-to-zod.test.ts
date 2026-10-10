@@ -378,3 +378,48 @@ describe('jsonSchemaToZod - property based', () => {
     )
   })
 })
+
+describe('jsonSchemaToZod - x-schema-studio extension (F-07b)', () => {
+  it('validates a rich text field as an array of blocks without flagging the keyword', () => {
+    const { schema, unsupported } = jsonSchemaToZod({
+      type: 'array',
+      'x-schema-studio': { kind: 'richText' },
+    })
+
+    expect(schema.safeParse([{ type: 'paragraph' }]).success).toBe(true)
+    expect(schema.safeParse([]).success).toBe(true)
+    expect(schema.safeParse('plain text').success).toBe(false)
+    expect(unsupported).toHaveLength(0)
+  })
+
+  it('maps a rich text field nested in an object', () => {
+    const { schema, unsupported } = jsonSchemaToZod({
+      type: 'object',
+      properties: {
+        title: { type: 'string' },
+        body: { type: 'array', 'x-schema-studio': { kind: 'richText' } },
+      },
+      required: ['title', 'body'],
+    })
+
+    expect(
+      schema.safeParse({ title: 't', body: [{ type: 'paragraph' }] }).success,
+    ).toBe(true)
+    expect(schema.safeParse({ title: 't', body: 'nope' }).success).toBe(false)
+    expect(unsupported).toHaveLength(0)
+  })
+
+  it('flags an unknown x-schema-studio kind as unsupported', () => {
+    const { unsupported } = jsonSchemaToZod({
+      type: 'string',
+      'x-schema-studio': { kind: 'futureThing' },
+    })
+
+    expect(
+      unsupported.some(
+        (message) =>
+          message.includes('x-schema-studio') && message.includes('futureThing'),
+      ),
+    ).toBe(true)
+  })
+})

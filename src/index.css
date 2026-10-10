@@ -1,6 +1,10 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+/* Ensure Tailwind generates the utilities used by the BlockNote rich text
+   editor (F-07b), which ships its own shadcn-styled components. */
+@source "../node_modules/@blocknote/shadcn";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

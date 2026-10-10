@@ -1,8 +1,13 @@
+import { isRichTextField } from '@/lib/schemas/extension'
+
+import { emptyRichTextDocument } from './rich-text'
+
 /**
  * Derive the editable fields of a record form from a JSON Schema document.
  *
  * This is a pragmatic, primitive-first view: scalars map to native controls,
- * `enum` to a select, and nested objects/arrays to a JSON editor. F-12/F-13
+ * `enum` to a select, `richText` (an `x-schema-studio` field type, F-07b) to the
+ * rich text editor, and nested objects/arrays to a JSON editor. F-12/F-13
  * expand the builder and live preview; keeping the shape here small means the
  * record form stays driven by the same schema + records model.
  */
@@ -12,6 +17,7 @@ export type RecordFieldKind =
   | 'integer'
   | 'boolean'
   | 'enum'
+  | 'richText'
   | 'json'
   | 'null'
 
@@ -32,6 +38,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 function kindFor(schema: Record<string, unknown>): RecordFieldKind {
+  if (isRichTextField(schema)) return 'richText'
   if (Array.isArray(schema.enum)) return 'enum'
 
   if (typeof schema.type === 'string') {
@@ -122,6 +129,9 @@ export function recordDefaults(jsonSchema: unknown): Record<string, unknown> {
   for (const field of describeRecordFields(jsonSchema)) {
     if (field.defaultValue !== undefined) {
       defaults[field.name] = field.defaultValue
+    } else if (field.kind === 'richText') {
+      // Give the editor (and required validation) a valid empty document.
+      defaults[field.name] = emptyRichTextDocument()
     }
   }
   return defaults

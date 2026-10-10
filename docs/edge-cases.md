@@ -36,7 +36,8 @@ Categories: **STO** storage · **CON** concurrency · **OFF** offline · **DAT**
 | DAT-10 | Invalid schema while preview panel open | Preview disables cleanly with raw parse error; editing never blocked | F-07a | `schema-preview.test.tsx` disable; `schema-form.test.tsx` disable |
 | DAT-16 | Auto-filled sample never satisfies the schema | Preview's generated sample must validate for supported constraints; invalid sample must fail | F-07a | `sample-data.test.ts` valid/invalid + fast-check |
 | DAT-12 | `object`/`array` field authored in builder | Round-trips builder ↔ raw; type help shown; nesting/item type configurable | F-12/F-05 | TBD |
-| DAT-13 | Rich text field content | Block JSON round-trips create → save → reload and export → import losslessly | F-07b | TBD |
+| DAT-13 | Rich text field content | Block JSON round-trips create → save → reload and export → import losslessly | F-07b | `validated.test.ts` lossless round-trip; `record-manager.test.tsx` create→reload; export/import (F-26/F-28) TBD |
+| DAT-17 | Rich text value not a block document | Write path rejects a non-array value; nothing persists | F-07b | `validated.test.ts` non-document reject; `json-to-zod.test.ts` type reject |
 | DAT-14 | Conditional validation rule violated | Field errors in the form + F-07a preview, and rejected at the write path | F-12a | TBD |
 | DAT-15 | Calculated field / rollup value | Derived value computed (never trusted from imported data); recalculated after a referenced record is edited/deleted | F-14a | TBD |
 | CON-01 | Two tabs edit the same record | Last-write-wins deterministically; BroadcastChannel notifies; no corruption | F-31 | TBD |

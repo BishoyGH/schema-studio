@@ -1,5 +1,10 @@
 import { z } from 'zod'
 
+import {
+  readSchemaStudioExtension,
+  readUnknownExtensionKind,
+  SCHEMA_STUDIO_KEY,
+} from './extension'
 import { findJsonSchemaError } from './validation'
 
 /**
@@ -53,6 +58,7 @@ const SUPPORTED_KEYWORDS = new Set([
   'allOf',
   'not',
   'default',
+  SCHEMA_STUDIO_KEY,
 ])
 
 /** Keywords that only carry metadata (never assertions) and are safely ignored. */
@@ -365,9 +371,22 @@ function convert(
 
   flagUnsupportedKeys(input, path, unsupported)
 
+  const extension = readSchemaStudioExtension(input)
+  const unknownExtensionKind = readUnknownExtensionKind(input)
+  if (unknownExtensionKind) {
+    unsupported.push(
+      `${labelFor(path)}.${SCHEMA_STUDIO_KEY} kind "${unknownExtensionKind}" is not supported and was ignored`,
+    )
+  }
+
   let result: z.ZodType | null = null
 
-  if ('const' in input) {
+  if (extension?.kind === 'richText') {
+    // BlockNote block content. We only loosely check that it is a document (an
+    // array of blocks); the internal block structure is deliberately not
+    // validated here so an editor version bump can never mis-reject content.
+    result = z.array(z.unknown())
+  } else if ('const' in input) {
     if (isPrimitive(input.const)) {
       result = literalSchema(input.const)
     } else {

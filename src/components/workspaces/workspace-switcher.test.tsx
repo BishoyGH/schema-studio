@@ -116,7 +116,9 @@ describe('Workspaces', () => {
         'Work',
       ),
     )
-    expect(trigger(/active workspace: work/i)).toBeInTheDocument()
+    await waitFor(() =>
+      expect(trigger(/active workspace: work/i)).toBeInTheDocument(),
+    )
   })
 
   it('deletes a workspace with confirmation and falls back to the default', async () => {

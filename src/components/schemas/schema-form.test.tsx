@@ -151,6 +151,43 @@ describe('SchemaForm tabbed editor', () => {
     expect(screen.getAllByText(/available in the Raw JSON tab/).length).toBe(2)
   })
 
+  it('authors a rich text field in the Builder and round-trips it to Raw JSON', async () => {
+    const user = userEvent.setup()
+    renderForm()
+
+    await user.click(screen.getByRole('button', { name: /add field/i }))
+    await user.click(screen.getByRole('combobox', { name: /type for field/i }))
+    await user.click(await screen.findByRole('option', { name: 'richText' }))
+
+    await user.click(screen.getByRole('tab', { name: /raw json/i }))
+    const textarea = screen.getByLabelText('Schema JSON') as HTMLTextAreaElement
+    expect(textarea.value).toContain('"x-schema-studio"')
+    expect(textarea.value).toContain('"richText"')
+  })
+
+  it('loads an existing rich text field back into the Builder', async () => {
+    const user = userEvent.setup()
+    renderForm()
+
+    await user.click(screen.getByRole('tab', { name: /raw json/i }))
+    fireEvent.change(screen.getByLabelText('Schema JSON'), {
+      target: {
+        value: JSON.stringify({
+          type: 'object',
+          properties: {
+            body: { type: 'array', 'x-schema-studio': { kind: 'richText' } },
+          },
+        }),
+      },
+    })
+    await user.click(screen.getByRole('tab', { name: /builder/i }))
+
+    expect(
+      screen.getByText(/edited with the block editor/i),
+    ).toBeInTheDocument()
+    expect(screen.queryByText(/advanced keywords/i)).not.toBeInTheDocument()
+  })
+
   it('blocks saving invalid Raw JSON with line/column and keeps Builder state', async () => {
     const user = userEvent.setup()
     const { onSubmit } = renderForm()

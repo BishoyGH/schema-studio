@@ -174,3 +174,27 @@ describe('generateInvalidSampleData', () => {
     expect(invalid.anything).toBe(12345)
   })
 })
+describe('rich text samples (F-07b)', () => {
+  const schema = {
+    type: 'object',
+    properties: {
+      title: { type: 'string' },
+      body: { type: 'array', 'x-schema-studio': { kind: 'richText' } },
+    },
+    required: ['title', 'body'],
+    additionalProperties: false,
+  }
+
+  it('auto-fills a valid rich text document that validates', () => {
+    const sample = generateSampleData(schema)
+    expect(Array.isArray(sample.body)).toBe(true)
+    expect(validateRecordData(schema, sample).success).toBe(true)
+  })
+
+  it('invalid sample makes the rich text field fail validation', () => {
+    const invalid = generateInvalidSampleData(schema)
+    const result = validateRecordData(schema, invalid)
+    expect(result.success).toBe(false)
+    expect(result.fieldErrors.map((error) => error.path)).toContain('body')
+  })
+})

@@ -113,4 +113,57 @@ describe('withRecordValidation (write-path validation)', () => {
       expect(storageError.message).toMatch(/name/)
     }
   })
+
+  it('round-trips a rich text block document losslessly (F-07b)', async () => {
+    const workspace = await storage.createWorkspace({ name: 'Docs' })
+    const schema = await storage.createSchema({
+      workspaceId: workspace.id,
+      name: 'Article',
+      jsonSchema: {
+        type: 'object',
+        properties: {
+          body: { type: 'array', 'x-schema-studio': { kind: 'richText' } },
+        },
+        required: ['body'],
+      },
+    })
+
+    const document = [
+      {
+        type: 'paragraph',
+        content: [{ type: 'text', text: 'Café — مرحبا', styles: {} }],
+      },
+      {
+        type: 'paragraph',
+        content: [{ type: 'text', text: 'second', styles: { bold: true } }],
+      },
+    ]
+
+    const created = await storage.createRecord({
+      schemaId: schema.id,
+      data: { body: document },
+    })
+    const reloaded = await storage.getRecord(created.id)
+    expect(reloaded?.data.body).toEqual(document)
+  })
+
+  it('rejects a rich text field whose value is not a block document', async () => {
+    const workspace = await storage.createWorkspace({ name: 'Docs' })
+    const schema = await storage.createSchema({
+      workspaceId: workspace.id,
+      name: 'Article',
+      jsonSchema: {
+        type: 'object',
+        properties: {
+          body: { type: 'array', 'x-schema-studio': { kind: 'richText' } },
+        },
+        required: ['body'],
+      },
+    })
+
+    await expect(
+      storage.createRecord({ schemaId: schema.id, data: { body: 'plain' } }),
+    ).rejects.toMatchObject({ code: 'VALIDATION' })
+    expect(await storage.listRecords(schema.id)).toHaveLength(0)
+  })
 })

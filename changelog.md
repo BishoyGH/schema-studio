@@ -1,6 +1,42 @@
 # Change Log
 All notable changes to Schema Studio.
 
+## Session 16 - [2026-10-10]
+### Added
+- **F-07b Rich Text / Block Content field type + BlockNote editor**:
+  - Introduces the `x-schema-studio` extension namespace via `src/lib/schemas/extension.ts` (`SCHEMA_STUDIO_KEY`, `RICH_TEXT_KIND`, `readSchemaStudioExtension`, `readUnknownExtensionKind`, `isRichTextField`, `richTextFieldSchema`); a rich text field is `{ "type": "array", "x-schema-studio": { "kind": "richText" } }`
+  - `src/lib/records/rich-text.ts`: `emptyRichTextDocument`/`normalizeRichTextDocument`/`isRichTextDocument`/`richTextPlainText` (block-document helpers + plain-text flatten for list labels)
+  - `src/components/records/blocknote-editor.tsx` (`BlockNoteEditorControl`) and `src/components/records/rich-text-field.tsx` (`RichTextField`): the editor is **lazily loaded** via `React.lazy` + `Suspense` so the BlockNote bundle only downloads when a rich text field is edited; follows `document.documentElement.dir` (default `ltr`) with an explicit override
+  - `@blocknote/core` + `@blocknote/react` + `@blocknote/shadcn` (`^0.55.0`) dependencies; `@source` added in `index.css` so Tailwind v4 scans the shadcn-styled editor components
+- F-04 bridge: `jsonSchemaToZod` recognises the `x-schema-studio` keyword, maps `richText` -> `z.array(z.unknown())` (loosely validated blocks), and pushes unknown `kind` values to `unsupported[]` instead of mis-validating
+- `describeRecordFields` gains a `richText` kind; `recordDefaults` prefills an empty block document; `record-manager` labels/summaries flatten rich text to plain text
+- Builder type picker (F-05 slice) exposes `richText` and authors the extension in the generated JSON; loading a rich text field back into the builder no longer flags it as an advanced keyword
+- Sample-data generator produces a valid rich text document (and an invalid variant) for preview auto-fill
+
+### Tests
+- [x] `src/lib/schemas/extension.test.ts` (new, 5): read/malformed/null namespace, unknown-kind reporting, `richTextFieldSchema()` round-trip
+- [x] `src/lib/records/rich-text.test.ts` (new, 4): empty document, normalization, plain-text flatten, junk tolerance
+- [x] `src/components/records/rich-text-field.test.tsx` (new, 4): lazy render with stored document, undefined repair, `onChange` propagation, `dir` resolution + override (BlockNote module mocked)
+- [x] `src/components/records/blocknote-editor.test.tsx` (new, 1): real BlockNote editor mounts in jsdom and renders stored block content
+- [x] `json-to-zod.test.ts` (+3): richText -> array mapping, object-nested richText, unknown kind -> `unsupported[]`
+- [x] `validation.test.ts` (+3): richText descriptor kind, non-document rejection, empty-document default validates
+- [x] `sample-data.test.ts` (+2): generated rich text validates; invalid variant fails on `body`
+- [x] `storage/validated.test.ts` (+2): lossless unicode/bold block round-trip; non-document write rejected, nothing persisted
+- [x] `record-manager.test.tsx` (+1): rich text create -> save -> reload; list label from scalar field + rich text summary; persisted block JSON re-opens in the editor
+- [x] `schema-form.test.tsx` (+2): author `richText` in the builder -> Raw JSON contains `x-schema-studio`/`richText`; existing rich text field re-loads into the builder without an advanced badge
+- [x] `schema-preview.test.tsx` updated: BlockNote module mocked; advanced-keyword assertion uses `$ref`, `content` treated as recognised richText (8 passing)
+- [x] Hardened a pre-existing timing flake in `workspace-switcher.test.tsx` ("renames the active workspace") by `waitFor`-ing the aria-label update
+- [x] `lint` -> `typecheck` -> `test` (171 passing across 17 files) all green
+
+### Decisions
+- Represent rich text as an **array of blocks** rather than an object/string so it inherits the F-04 array mapping and reads naturally in the Raw tab; the `x-schema-studio` namespace is introduced here for F-14's `id`/`reference` to reuse
+- **Lazy-load** the editor (heavy dependency) behind `React.lazy`/`Suspense` with a `data-testid="rich-text-loading"` fallback, so schemas without rich text never pay the bundle cost and offline precaching (F-36) can target it precisely
+- Keep block validation loose (`z.array(z.unknown())`) at the F-04 layer; the editor owns block-shape correctness, the storage boundary still rejects a non-array value, so invalid data can never persist
+- Editor theme/direction read from the document now (honouring `dir`) with full theming (F-18) and BiDi audit (F-21) deferred to their features
+
+### Edge Cases
+- **DAT-13** test refs filled (lossless block round-trip + create->reload); added **DAT-17** (rich text value that is not a block document must be rejected at the write path)
+
 ## Session 15 - [2026-10-10]
 ### Added
 - **F-07a Schema Form & Validation Preview** (complete; F-07b/F-14 field types render via the shared engine until they land):

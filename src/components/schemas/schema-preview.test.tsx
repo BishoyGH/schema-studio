@@ -1,8 +1,15 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { SchemaPreview } from './schema-preview'
 import { validateRecordData } from '@/lib/records/validation'
+
+// The rich text control lazily loads the BlockNote editor; stub the heavy module
+// so preview tests stay fast. The real editor is covered by its own suite and by
+// the record-form integration test.
+vi.mock('@/components/records/blocknote-editor', () => ({
+  BlockNoteEditorControl: () => <div data-testid="rich-text-editor" />,
+}))
 
 const BASE_SCHEMA = {
   $schema: 'https://json-schema.org/draft/2020-12/schema',
@@ -115,12 +122,13 @@ describe('SchemaPreview', () => {
     expect(result.textContent).toMatch(/fields? with errors/i)
   })
 
-  it('validates pasted data and maps errors to fields, flagging advanced keywords', async () => {
+  it('validates pasted data, maps errors to fields and flags unsupported keywords', async () => {
     const user = userEvent.setup()
     const schema = {
       type: 'object',
       properties: {
-        content: { type: 'object', 'x-schema-studio': { kind: 'richText' } },
+        content: { type: 'array', 'x-schema-studio': { kind: 'richText' } },
+        legacy: { $ref: '#/definitions/thing' },
         note: { type: 'string', maxLength: 2 },
       },
     }
@@ -141,8 +149,13 @@ describe('SchemaPreview', () => {
       expect(screen.getByText(expected.fieldErrors[0].message)).toBeVisible(),
     )
 
+    // A recognised `x-schema-studio` rich text field renders the editor and is
+    // no longer surfaced as "advanced"...
+    expect(await screen.findByTestId('rich-text-editor')).toBeInTheDocument()
+    // ...while a genuinely unsupported keyword is still flagged.
     const advanced = screen.getByTestId('preview-advanced-fields')
-    expect(advanced.textContent).toContain('content')
+    expect(advanced.textContent).toContain('legacy')
+    expect(advanced.textContent).not.toContain('content')
     expect(advanced.textContent).toContain('advanced — not validated')
   })
 

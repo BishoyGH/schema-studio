@@ -107,18 +107,19 @@ These land immediately after F-07, **ahead of F-08**. The app is hard to use wit
 - [x] [TEST] Pasted-data validation maps errors to fields incl. `unsupported[]` flags
 - [x] [TEST] Invalid schema disables preview cleanly; preview parity with touch/keyboard audit
 
-### F-07b. Rich Text / Block Content Field Type + BlockNote Editor — TOP PRIORITY
-- [ ] New field type represented as `x-schema-studio: { "kind": "richText" }` — this **introduces the `x-schema-studio` extension namespace** that F-14 later reuses for `id`/`reference`; preserved by the Raw tab and structural validator (F-03/F-04)
-- [ ] BlockNote-based editor control (new `@blocknote/*` deps) used in the record form (F-07) and the F-07a live preview; content stored as BlockNote block JSON inside the record
-- [ ] F-04 bridge maps `richText` → loosely-validated block content (unknown constructs reported via `unsupported[]` rather than mis-validated)
-- [ ] Builder picker (F-05 slice / F-12) exposes the field type; `describeRecordFields` (F-07) gains a `richText` kind
-- [ ] Views (F-09) render rich content read-only (document/gallery renderers)
-- [ ] Editor follows app theme (F-18), supports LTR/RTL + BiDi (F-20/F-21), is cached by the service worker (F-36), and round-trips through import/export (F-26/F-28)
+### F-07b. Rich Text / Block Content Field Type + BlockNote Editor — DONE (core); remaining items belong to later features
+- [x] New field type represented as `x-schema-studio: { "kind": "richText" }` — this **introduces the `x-schema-studio` extension namespace** that F-14 later reuses for `id`/`reference`; preserved by the Raw tab and structural validator (F-03/F-04)
+- [x] BlockNote-based editor (**lazily loaded**) used in the record form (F-07) and the F-07a live preview; content stored as BlockNote block JSON inside the record
+- [x] F-04 bridge maps `richText` → loosely-validated block content (`z.array(z.unknown())`; unknown `x-schema-studio` kinds reported via `unsupported[]` rather than mis-validated)
+- [x] Builder picker (F-05 slice / F-12) exposes the field type; `describeRecordFields` (F-07) gains a `richText` kind; `recordDefaults` prefills an empty block document
+- [x] Record list labels/summaries derive from rich text content (plain-text flatten)
+- [ ] Views (F-09) render rich content read-only (document/gallery renderers) — belongs to F-09
+- [ ] Editor follows app theme (F-18; theme is read today, full wiring in F-18), supports LTR/RTL + BiDi (F-20/F-21; `dir` wiring lands now, BiDi audit in F-21), is cached by the service worker (F-36), and round-trips through import/export (F-26/F-28)
 - [ ] Keyboard-complete, 44px touch targets (F-23/F-33)
-- [ ] [TEST] Rich text field: create → edit → save → reload round-trips block JSON
-- [ ] [TEST] Preview (F-07a) renders the rich text control and validates it
-- [ ] [TEST] RTL/BiDi content preserved; editor theme matches app theme
-- [ ] [TEST] Export → import round-trips rich text content losslessly
+- [x] [TEST] Rich text field: create → edit → save → reload round-trips block JSON (`record-manager.test.tsx`, `validated.test.ts`)
+- [x] [TEST] Preview (F-07a) renders the rich text control and validates it (`schema-preview.test.tsx`)
+- [ ] [TEST] RTL/BiDi content preserved; editor theme matches app theme — belongs to F-18/F-21 (direction wiring covered now)
+- [ ] [TEST] Export → import round-trips rich text content losslessly — belongs to F-26/F-28
 
 ### F-12. Visual Schema Builder (User-Friendly Schema Creator) — TOP PRIORITY
 > **Boundary note**: F-05 already ships a minimal builder slice (add/remove/reorder fields, name/type/required/description, `additionalProperties`). F-12 is the **superset** — constraints, nesting, `enum`/`const` — built on the same tabs without changing the F-05 architecture. **Elevated here from Phase 3** so authors get a complete authoring loop alongside F-07a/F-07b.
