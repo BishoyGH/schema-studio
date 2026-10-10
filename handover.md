@@ -31,11 +31,13 @@ Every feature carries a priority tag: **P0** now · **P1** next · **P2** later 
 Work top-down. This list — not the physical position of a feature block — decides sequence.
 
 **P0 — now**
-1. **F-12** Visual Schema Builder
-2. **F-12a** Advanced & Conditional Validation Rules
+1. **F-53** Compact SaaS Design System v2 (refines F-49; lands first so everything below is built in its final visual home)
+2. **F-54** Schema Editor — Three-Pane Studio (hosts F-07a + the F-12 builder)
+3. **F-12** Visual Schema Builder (uses the locked builder architecture: outline + detail inspector + field-type registry)
+4. **F-12a** Advanced & Conditional Validation Rules
 
 **P1 — next**
-F-11 · F-08 · F-09 · F-10 · F-14 · F-14a · F-15
+F-07c · F-11 · F-08 · F-09 · F-10 · F-14 · F-14a · F-15
 
 **P2 — later**
 F-16 · F-17 · F-18 · F-19 · F-20 · F-21 · F-22 · F-23 · F-24 · F-25 · F-26 · F-27 · F-28 · F-29 · F-30 · F-31
@@ -103,6 +105,9 @@ F-32 · F-33 · F-34 · F-35 · F-36 · F-37 · F-38 · F-39 · F-40 · F-41 · 
 | F-50 | App shell & routing | 1.75 | P0 | done |
 | F-51 | Dashboard | 1.75 | P0 | done |
 | F-52 | Page-based editors | 1.75 | P0 | done |
+| F-53 | Compact SaaS design system v2 | 1.75 | P0 | next |
+| F-54 | Schema editor studio (three-pane) | 1.75 | P0 | next |
+| F-07c | Rich editor code-block highlighting | 1.75 | P1 | planned |
 
 ## Phase 0 — Completed (F-01 – F-05)
 
@@ -207,8 +212,22 @@ These land immediately after F-07, **ahead of F-08**. The app is hard to use wit
 - [ ] [TEST] RTL/BiDi content preserved; editor theme matches app theme — belongs to F-18/F-21 (direction wiring covered now)
 - [ ] [TEST] Export → import round-trips rich text content losslessly — belongs to F-26/F-28
 
+### F-07c. Rich Editor — Code-Block Syntax Highlighting — P1
+> Adds real syntax highlighting to code blocks authored in the F-07b editor. Small and self-contained; reuses the existing lazily-loaded BlockNote chunk so the main bundle is unaffected.
+- [ ] Add `@blocknote/code-block` (`^0.55.0`) and wire it into `src/components/records/blocknote-editor.tsx`: pass the package's `syntaxHighlighter` as an editor extension and extend the BlockNote schema with `createCodeBlockSpec(codeBlockOptions)` so `codeBlock` blocks render Shiki-highlighted
+- [ ] Highlight theme matches the active app theme (light ↔ dark); if the packaged highlighter's theme does not track the F-49 theme toggle, generate a dual-theme highlighter (`shiki-codegen` light/dark) and bind it to the current mode — ties into F-18
+- [ ] Language selector + code direction respect `dir` (RTL/BiDi) — pairs with F-21
+- [ ] Stays inside the lazy BlockNote chunk; the service worker (F-36) precaches it
+- [ ] Code-block content keeps round-tripping as block JSON (create → save → reload) exactly as F-07b; highlighting is presentational only
+- [ ] [TEST] A code block with a language renders highlighted and its JSON round-trips create → save → reload
+- [ ] [TEST] Highlight theme follows light/dark mode (no contrast regression) — pairs with THEME-03
+- [ ] [TEST] Language selector + code direction are correct under `dir=rtl`
+
 ### F-12. Visual Schema Builder (User-Friendly Schema Creator) — P0
 > **Boundary note**: F-05 already ships a minimal builder slice (add/remove/reorder fields, name/type/required/description, `additionalProperties`). F-12 is the **superset** — constraints, nesting, `enum`/`const` — built on the same tabs without changing the F-05 architecture. **Elevated here from Phase 3** so authors get a complete authoring loop alongside F-07a/F-07b.
+>
+> **Builder architecture (locked)**: a **three-pane studio** hosted by the redesigned schema editor (**F-54**): a left **fields outline** (drag handle, type icon, inline-editable name, required/advanced markers, row menu; search + drag/keyboard reorder + multi-select bulk actions; a pinned **Schema settings** row for root title + `additionalProperties`), a **center detail inspector** for the selected field (collapsible **Basics / Validation / Advanced** groups driven by the **field-type registry**; nested `object`/`array` recurse via breadcrumb; a **type palette** adds fields), and a right **Inspector** (`Preview / JSON / Notes`, re-hosting F-07a). Raw JSON stays first-class via a **Builder | Raw** control.
+- [ ] **Field-type registry** (`src/lib/schemas/field-types/`): each type declares `id/label/icon/group/defaultSchema` plus a list of `OptionDescriptor`s (`key/label/group/control/when?/help/read/write`); the detail inspector renders options generically so new types/options plug in **without touching layout**
 - [ ] Field type picker covering the core JSON Schema types: `string`, `number`, `integer`, `boolean`, `null`, `object`, `array`, plus `enum`/`const` value sets
 - [ ] **`object` = a nested group of named properties** (a sub-record), edited inline one level at a time (breadcrumb/stack navigation for depth)
 - [ ] **`array` = an ordered list**, with an `items` schema (scalar **or** object → a repeatable group) and `minItems`/`maxItems`/`uniqueItems`
@@ -225,6 +244,7 @@ These land immediately after F-07, **ahead of F-08**. The app is hard to use wit
 - [ ] [TEST] Round-trip: existing schema → builder → JSON → builder → JSON is lossless for supported constructs
 - [ ] [TEST] Unsupported constructs survive an edit session byte-identical and are flagged as advanced
 - [ ] [TEST] `object` nests and `array`-of-object round-trips; keyboard-only + touch-target audit (parity with F-23 / F-33)
+- [ ] [TEST] Field-type registry drives the detail inspector: every type's option descriptors render and round-trip, and adding an option descriptor needs no layout change
 
 ### F-12a. Advanced & Conditional Validation Rules
 - [ ] Conditional & cross-field rules authored in the schema and enforced in the form: `if`/`then`/`else`, `dependentRequired`, `dependentSchemas`, conditional-required, and cross-field comparisons
@@ -237,9 +257,11 @@ These land immediately after F-07, **ahead of F-08**. The app is hard to use wit
 ### F-08. Schema List & Search (TanStack Query + Table)
 - [ ] Server-state cache of schemas via TanStack Query (IndexedDB as the "server"), workspace-scoped (F-06)
 - [ ] Table with sorting, filtering, pagination, search
+- [ ] **Schema list redesign** (dense SaaS table): header (title + schema count + primary "New schema"), a toolbar (search, sort by Name/Updated/Records, view toggle **Table | Grid**), and compact rows (accent icon · Name · Draft · Fields · Records · Updated); row click opens Records; a per-row overflow menu holds Edit / Delete; grid mode = compact accent cards
 - [ ] **Global record-search index** (workspace-scoped) powering cross-schema search and the command palette (F-24)
 - [ ] [TEST] Query cache tests: invalidation after create/update/delete
 - [ ] [TEST] Table tests: sort/filter/search produce correct rows
+- [ ] [TEST] Toolbar state (search/sort/view) filters and orders rows, and Table/Grid render the same set; Delete via the row overflow menu works
 - [ ] [TEST] Global search finds records across schemas; unicode/partial matches handled
 
 ### F-09. Record Browser (TanStack Table)
@@ -284,6 +306,28 @@ The app today is a single centered `max-w-3xl` column with no persistent navigat
 - [x] Overview page at `/w/$workspaceId`: stat cards (schemas, records, field totals), recent schemas/records, quick actions (new schema / new record / import)
 - [x] First-run / empty-workspace state with an icon + CTA that teaches the model (feeds F-16 onboarding)
 - [x] [TEST] Counts reflect stored data; empty state renders when a workspace has no schemas; quick actions navigate to the right routes
+
+### F-53. Compact SaaS Design System v2 — P0
+> Refines the F-49 primitives from a "roomy default" look into a compact, professional SaaS density applied **app-wide**, with a single cohesive accent. Lands first so the builder (F-12) and studio (F-54) are built in their final visual home.
+- [ ] Token/scale overhaul in `src/index.css`: base text `14px/1.5`, meta `12px`, micro labels `11px` uppercase tracking-wide; page title `text-xl` semibold/tight; section/card titles `text-sm` semibold
+- [ ] Compact control density: default control `h-8` (32px), prominent `h-9`, icon `size-8`, card padding `16px`, section gap `20px`, radius `0.5rem`; on `<md` bump interactive targets back to ≥44px (F-32/F-33)
+- [ ] Accent: one **indigo** primary (`--primary`/`--ring`/`--accent`) for buttons, active nav, focus rings, and links; add `--success`/`--warning`/`--info` tokens + badge variants; replace ad-hoc `text-amber-500` and workspace hex swatches with tokens
+- [ ] Fix dark-mode contrast (e.g. `bg-muted` skeletons); every color is a Tailwind v4 CSS variable, no hardcoded hex — extends F-18/F-19
+- [ ] Resize the shared primitives (`button`, `input`, `textarea`, `select`, `badge`, `tabs`, `card`, `skeleton`, `table`, `dialog`, `dropdown-menu`) and the shell (sidebar `w-56`, header `h-12`/`h-14`, indigo active-nav indicator) to the new density
+- [ ] RTL-safe throughout (logical properties only) — pairs with F-20
+- [ ] Applies across every page (dashboard, schema list, schema editor, record pages, workspace editor, settings) — no page keeps the old scale
+- [ ] [TEST] Primitives render at the new sizes and remain keyboard operable; a token-only scan finds no hardcoded colors (pairs with the F-20 static scan)
+- [ ] [TEST] Density regression: interactive controls are ≥44px at the `320px` breakpoint (pairs with A11Y-04)
+
+### F-54. Schema Editor — Three-Pane Studio — P0
+> Redesigns the F-52 page-based schema editor around the F-12 builder. Re-hosts F-03/F-05/F-07a components; Raw JSON stays a first-class mode.
+- [ ] **Sticky header**: back/breadcrumb, editable title, draft select, actions (Review diff, toggle Inspector, Cancel, Save)
+- [ ] **Left — Fields outline**: ~32–36px rows (drag handle, type icon, inline-editable name, required dot, advanced dot, row menu) with search, drag + keyboard reorder, multi-select bulk actions, and a pinned **Schema settings** row (root title + "Allow additional properties")
+- [ ] **Center — Field detail**: collapsible **Basics / Validation / Advanced** groups driven by the **field-type registry** (F-12); nested `object`/`array` recurse via breadcrumb; a **type palette** adds fields
+- [ ] **Right — Inspector** tabs `Preview / JSON / Notes` (re-hosts the F-07a preview + JSON mirror); schema diff shows as an overlay dialog
+- [ ] **Builder | Raw** segmented control keeps the raw editor a first-class mode over the same shared state
+- [ ] Fully keyboard-navigable, RTL-safe, 320px-first responsive (pairs with F-23/F-32)
+- [ ] [TEST] Selecting a field opens its detail; adding/reordering/removing/bulk-deleting fields updates the JSON; Inspector tabs and the diff overlay work; Raw still edits the same state
 
 ## Phase 2 — Automated Quality Gate (F-11)
 
@@ -619,7 +663,7 @@ A standing, cross-cutting test mechanism that runs at **every phase boundary** t
 
 ## Next Session Checklist
 - [ ] Read `changelog.md` for what the last session completed
-- [ ] Pick the top item of the [Priority list](#priority-single-source-of-truth) (NOT the physical position of a feature block). **F-12 (Visual Schema Builder) is next up; land it in its final home — the full-page schema editor (F-52) added its sticky header/save bar with Builder & Raw tabs, so the new Builder area plugs straight into the left pane.**
+- [ ] Pick the top item of the [Priority list](#priority-single-source-of-truth) (NOT the physical position of a feature block). **Start with F-53 (Compact SaaS Design System v2), then F-54 (Schema Editor Three-Pane Studio), then F-12 (Visual Schema Builder) using the locked outline + detail + field-type-registry architecture — the builder plugs into the studio's left/center panes.**
 - [ ] Implement feature **and** its paired `[TEST]` items
 - [ ] Run the **Edge-Case Sweep** (see Testing Strategy) at phase boundaries; add any new edge cases to `docs/edge-cases.md` with tests
 - [ ] Run `lint -> typecheck -> test`

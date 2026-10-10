@@ -1,6 +1,25 @@
 # Change Log
 All notable changes to Schema Studio.
 
+## Session 18 - [2026-10-10]
+### Added (planning docs only — no code changed this session)
+- **F-53 Compact SaaS Design System v2**: the F-49 primitives are refined from a roomy default into a compact, professional SaaS density applied app-wide — base `14px/1.5` / meta `12px` / micro `11px`, `h-8`/`h-9` controls, `16px` card padding, `text-xl` page titles, `0.5rem` radius, a single **indigo** accent token, `success`/`warning`/`info` tokens, token-only colors (no hex), and ≥44px targets on `<md`. Landed first in the backlog so F-54/F-12 are built in their final visual home
+- **F-54 Schema Editor — Three-Pane Studio**: sticky header; left **fields outline** (drag/type/name/required/advanced + search + drag/keyboard reorder + multi-select + pinned Schema settings row); center **field detail** (Basics/Validation/Advanced via the field-type registry; nested `object`/`array` via breadcrumb; type palette); right **Inspector** (`Preview / JSON / Notes`); **Builder | Raw** control
+- **F-12 Visual Schema Builder — architecture locked**: outline + detail inspector driven by a new **field-type registry** (`src/lib/schemas/field-types/`, `OptionDescriptor`/`FieldTypeDefinition`) so new types/options plug in without layout changes
+- **F-07c Rich Editor — Code-Block Syntax Highlighting**: add `@blocknote/code-block` (`^0.55.0`), wire `syntaxHighlighter` + `createCodeBlockSpec(codeBlockOptions)` into `blocknote-editor.tsx`, match light/dark theme, keep it in the lazy BlockNote chunk, RTL-aware language selector
+- **F-08 expanded**: the schema-list redesign (header + toolbar with search/sort/Table|Grid toggle + dense rows + row overflow menu) is now part of F-08
+- Edge-Case Canon: **UI-05** (tokens/logical-props scan), **UI-06** (builder usable at 50+ fields), **A11Y-04** (compact density still ≥44px at 320px), **THEME-03** (code highlighting matches mode), **DAT-18** (code-block JSON round-trip)
+
+### Decisions
+- **Locked design-system values**: compact SaaS density applied **app-wide** (not just new pages); one **indigo** accent; tokens-only (CSS variables, no hardcoded hex); logical properties for RTL
+- **Schema editor = three-pane studio** (outline · detail · Inspector) with Raw JSON still first-class via a Builder | Raw control
+- **Builder = outline + detail inspector + field-type registry**, so the taxonomy scales to many fields/types; search, drag/keyboard reorder, and multi-select are first-class
+- **F-53 → F-54 → F-12 → F-12a** is the new P0 order (design system first, then the studio that hosts the builder, then the builder itself); **F-07c** is P1
+- New feature IDs **F-53**, **F-54**, **F-07c** appended (IDs stay immutable/never renumbered); F-08 and F-12 blocks expanded in place
+
+### Edge Cases
+- Added canon entries **UI-05**, **UI-06**, **A11Y-04**, **THEME-03**, **DAT-18** (test refs `TBD`, to be filled by the implementing session)
+
 ## Session 17 - [2026-10-10]
 ### Added
 - **F-49 Design System Primitives + Theme Toggle**:

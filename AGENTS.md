@@ -25,6 +25,7 @@
 - **Settings**: User/app/schema defaults persist in IndexedDB; settings are exportable/importable.
 - **BYOD**: Import/export JSON/JSONL/CSV and full-workspace backups client-side; infer schemas from sample data.
 - **Theming**: Dark/light/system modes via Tailwind v4 CSS variables; theme registry for future custom themes.
+- **Design System**: Compact, professional SaaS density applied app-wide — base text `14px/1.5`, meta `12px`, micro labels `11px`, default control `h-8` (32px), card padding `16px`, page titles `text-xl`; a single **indigo** accent. All colors are Tailwind v4 CSS variables (no hardcoded hex); sizing goes through the shared UI primitives; layout uses logical properties only (RTL); interactive targets stay ≥44px on mobile even though desktop density is compact.
 - **RTL**: Full app-wide RTL using CSS logical properties only; BlockNote editor must support RTL + BiDi.
 
 ## Architecture Guardrails
