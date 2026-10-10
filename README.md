@@ -8,9 +8,9 @@ The core is schema-driven: schemas and records are grouped under user-created wo
 
 > Early development. Feature status mirrors the phased backlog in `handover.md` (F-01–F-48).
 
-| Done | In progress | Planned |
+| Done | Next (Phase 1.5) | Planned |
 | --- | --- | --- |
-| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge, F-05 Tabbed schema editor, F-06 Workspaces, F-07 Record CRUD | F-08 Schema list & search | F-09 → F-48 |
+| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge, F-05 Tabbed schema editor, F-06 Workspaces, F-07 Record CRUD | F-07a Schema form & validation preview, F-07b Rich text field + editor, F-12 Visual schema builder, F-12a Advanced validation rules | F-08 → F-48 |
 
 ### Implemented
 
@@ -64,7 +64,7 @@ The core is schema-driven: schemas and records are grouped under user-created wo
 
 **F-07 Record CRUD against a schema**
 
-- Dynamic record form generated from the schema with `react-hook-form` + a runtime Zod schema (the F-04 bridge): scalars/`enum` map to native controls, nested objects/arrays get a JSON editor
+- Dynamic record form generated from the schema with `react-hook-form` + a runtime Zod schema (the F-04 bridge): scalars/`enum` map to native controls, nested objects/arrays get a JSON editor for now (proper `object`/`array` authoring + nesting arrives with F-12; the builder now explains each field type inline)
 - Real-time per-field validation with inline errors (resolver round-trips through the same F-04 bridge the write path uses)
 - Create/edit/delete records via TanStack Query hooks, per-schema in IndexedDB and scoped to the current workspace; record list with a label derived from the schema's first scalar field, plus create/edit/delete dialogs
 - **Write-path validation**: every adapter handed to `getStorage()` is wrapped by `withRecordValidation`, so `createRecord`/`updateRecord` reject data that does not match its schema (`StorageError` `VALIDATION`) — raw import paths cannot persist invalid records
@@ -75,9 +75,10 @@ The core is schema-driven: schemas and records are grouped under user-created wo
 
 Grouped by dependency (each phase builds on the previous); see `handover.md` for the full, test-paired backlog.
 
-- **Phase 1 — Data model & core CRUD (F-07–F-10)**: record CRUD with write-path validation + schema defaults, schema list+search with a global record index, record browser, offline-first operations
+- **Phase 1 — Data model & core CRUD (F-08–F-10)**: schema list+search with a global record index, record browser, offline-first operations (record CRUD F-07 already done)
+- **Phase 1.5 — Authoring UX essentials (F-07a–F-12a, immediate priority)**: live schema form + validation preview (F-07a), rich text / block content field type with a BlockNote editor (F-07b), the full visual schema builder incl. `object` nesting + `array` items (F-12), and advanced/conditional validation rules (F-12a). Promoted ahead of F-08 because authoring is hard to use without them
 - **Phase 2 — Automated quality gate (F-11)**: GitHub Actions running lint, typecheck, unit, coverage gates, production build, Playwright e2e, PWA/offline e2e, Lighthouse PWA audit, axe accessibility, dependency audit, bundle-size, and the Edge-Case Sweep
-- **Phase 3 — Schema authoring (F-12–F-15)**: full visual schema builder (constraints, nesting, `enum`/`const`, live server-less JSON Schema preview), live form + validation preview, auto ids + ObjectId-style reference fields with referential integrity, schema inference
+- **Phase 3 — Schema authoring (F-14–F-15)**: auto ids + ObjectId-style reference fields with referential integrity (F-14), calculated/formula fields incl. rollups (F-14a), schema inference (F-15)
 - **Phase 4 — Cross-cutting UX (F-16–F-25)**: app settings (incl. offline profile + first-run onboarding), user/workspace defaults, dark/light/system themes + theme registry, full RTL (incl. rich editor), localization/i18n, keyboard-complete workflows, command palette, undo/redo
 - **Phase 5 — BYOD (F-26–F-31)**: import/export (JSON/JSONL/CSV), import hub, streaming backup/restore, data management (duplicate/bulk/trash), versioning & history, local sharing + multi-tab conflict policy
 - **Phase 6 — Mobile, PWA & polish (F-32–F-38)**: 320px-first layout, 44px touch targets, gestures, bottom-tab navigation, installable manifest, service worker, offline UX + action queue, app-like polish
@@ -89,7 +90,7 @@ Grouped by dependency (each phase builds on the previous); see `handover.md` for
 - **Frontend**: React, TypeScript, Vite, Tailwind CSS v4, Motion
 - **Forms & validation**: React-hook-form, Zod
 - **Data & state**: TanStack Query, TanStack Table
-- **UI**: Shadcn UI, BlockNote
+- **UI**: Shadcn UI, BlockNote (planned — arrives with the rich text field, F-07b)
 - **Persistence**: IndexedDB (browser-side)
 - **PWA**: vite-plugin-pwa / Workbox (planned)
 - **Testing**: Vitest, React Testing Library, Playwright

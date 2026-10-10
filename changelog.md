@@ -247,3 +247,26 @@ All notable changes to Schema Studio.
 
 ### Edge Cases
 - Canon entries `DAT-04` / `DAT-05` now have test refs (write-path rejection + defaults-on-create); added `DAT-11` (live form field error matches the write-path rejection; invalid records can never persist)
+
+## Session 14 - [2026-10-10]
+### Updated (roadmap + authoring UX; no new runtime features)
+- **Reprioritized `handover.md`** to close three undocumented gaps flagged in review (rich editor ownership, `object`/`array` semantics, validation/dynamic/formula features) and to promote authoring UX to the front:
+  - Added **Phase 1.5 — Authoring UX Essentials (immediate priority)** right after F-07 and **before F-08**, because the app is hard to use without a live preview and a rich text field:
+    - **F-07a Schema Form & Validation Preview** — moved up from F-13; now also owns the read-only **live JSON Schema mirror** (moved from F-12). Old Phase-3 F-13 is kept only as a pointer to avoid an ID gap.
+    - **F-07b Rich Text / Block Content field type + BlockNote editor** — new; introduces the `x-schema-studio` extension namespace (`kind: "richText"`) that F-14 later reuses for `id`/`reference`; adds `@blocknote/*` deps + tests.
+    - **F-12 Visual Schema Builder** — elevated from Phase 3; now explicitly defines **`object` = nested named-property group** and **`array` = ordered list with an `items` schema (scalar or object) + `minItems`/`maxItems`/`uniqueItems`**.
+    - **F-12a Advanced & Conditional Validation Rules** — new (`if`/`then`/`else`, `dependentRequired`/`dependentSchemas`, cross-field); routes F-04's `unsupported[]` notes here.
+  - Added **F-14a Calculated / Formula Fields** after F-14 — defines the previously-ambiguous "dynamic fields" as calculated (derived, read-only) values + rollups; replaces the vague F-43-only mention; safe expression evaluation (no `eval`/`Function`) per F-40.
+  - Marked Phase 3 as `(F-13–F-15)` with F-13 as a pointer; repointed editor-assumption references: F-18 (theme follows editor), F-21 (RTL in editor), F-36 (SW caches editor assets), F-45 (content field type) → **F-07b**/**F-07a**.
+  - Updated the "Next Session Checklist" to call out Phase 1.5 as the immediate priority.
+- **Builder UX (F-05 slice)**: `schema-builder.tsx` now shows a one-line explanation of each field type under the Type picker (wired via `aria-describedby`), with explicit hints for `object` ("Nested group of named fields (a sub-record)") and `array` ("Ordered list of values") noting that detailed nested/item setup lives in the Raw JSON tab until F-12.
+- Docs sync: `README.md` (status table + phase summaries now show Phase 1.5 first; BlockNote marked planned until F-07b), `docs/edge-cases.md` (repointed DAT-09/DAT-10 → F-07a, I18N-03/THEME-01 → F-07b; added DAT-12…DAT-15 for object/array round-trip, rich text, conditional validation, calculated fields), `AGENTS.md` (Core Logic gains a "Field types" bullet for the rich text / block content field type).
+
+### Tests
+- [x] `schema-form.test.tsx`: added "explains field types, including object and array" (helper text per type + the two nested hints)
+- [x] `lint` -> `typecheck` -> `test` -> `build` all green
+
+### Decisions
+- Chose **suffixed IDs** (`F-07a`/`F-07b`/`F-12a`/`F-14a`) over a full renumber so existing cross-references in `docs/edge-cases.md`, README, and the Session-11 mapping stay valid; Phase 1.5 is placed physically before F-08 so the top-down "highest unchecked item" rule schedules it next.
+- Promoted the **rich text editor as early as possible** (Phase 1.5) per review: it is a first-class authoring capability, so its ownership now sits alongside the preview/builder instead of an implied future arrival in F-45 (removes the Phase-4-depends-on-F-45 inversion).
+- Rich text fields use the `x-schema-studio` extension namespace (consistent with F-14) rather than a standard `format`/`contentMediaType` keyword.

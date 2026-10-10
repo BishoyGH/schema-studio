@@ -25,6 +25,24 @@ const BUILDER_FIELD_TYPES = [
 
 type BuilderFieldType = (typeof BUILDER_FIELD_TYPES)[number]
 
+/** One-line explanation of what each field type captures, shown next to the picker. */
+const FIELD_TYPE_HELP: Record<BuilderFieldType, string> = {
+  string: 'Text value.',
+  number: 'Decimal number.',
+  integer: 'Whole number.',
+  boolean: 'True/false toggle.',
+  null: 'Always empty (null).',
+  object: 'Nested group of named fields (a sub-record).',
+  array: 'Ordered list of values.',
+}
+
+/**
+ * What `object`/`array` mean beyond the label. Until nested editing ships in
+ * F-12, the builder can only set the type; deeper setup lives in the Raw tab.
+ */
+const NESTED_TYPE_HINT =
+  'Detailed setup (nested fields / item type) is available in the Raw JSON tab.'
+
 const MANAGED_ROOT_KEYS = new Set([
   '$schema',
   'type',
@@ -312,6 +330,9 @@ export function SchemaBuilder({ value, onChange }: SchemaBuilderProps) {
                       <SelectTrigger
                         className="w-full"
                         aria-label={`Type for ${field.key}`}
+                        aria-describedby={
+                          field.type ? `field-type-help-${field.key}` : undefined
+                        }
                       >
                         <SelectValue placeholder="Custom" />
                       </SelectTrigger>
@@ -323,6 +344,17 @@ export function SchemaBuilder({ value, onChange }: SchemaBuilderProps) {
                         ))}
                       </SelectContent>
                     </Select>
+                    {field.type && (
+                      <p
+                        id={`field-type-help-${field.key}`}
+                        className="text-muted-foreground text-xs"
+                      >
+                        {FIELD_TYPE_HELP[field.type]}
+                        {(field.type === 'object' || field.type === 'array') && (
+                          <> {NESTED_TYPE_HINT}</>
+                        )}
+                      </p>
+                    )}
                   </div>
 
                   <label className="flex min-h-9 cursor-pointer items-center gap-2 text-sm">

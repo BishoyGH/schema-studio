@@ -32,8 +32,12 @@ Categories: **STO** storage · **CON** concurrency · **OFF** offline · **DAT**
 | DAT-06 | Restore old schema version that invalidates records | Records re-validated; non-conforming ones flagged with revert/migrate choice, never dropped | F-30 | TBD |
 | DAT-07 | Import a file with invalid/malformed data | Clear, actionable error; nothing partially persisted | F-26/F-27 | TBD |
 | DAT-08 | Import/export round-trip incl. unicode, empty, nested, ids/references | Lossless; all field types and metadata preserved | F-26/F-28 | TBD |
-| DAT-09 | Pasted-data validation in form preview | Errors mapped to fields; `unsupported[]` keywords flagged | F-13/F-04 | TBD |
-| DAT-10 | Invalid schema while preview panel open | Preview disables cleanly with raw parse error; editing never blocked | F-13 | TBD |
+| DAT-09 | Pasted-data validation in form preview | Errors mapped to fields; `unsupported[]` keywords flagged | F-07a/F-04 | TBD |
+| DAT-10 | Invalid schema while preview panel open | Preview disables cleanly with raw parse error; editing never blocked | F-07a | TBD |
+| DAT-12 | `object`/`array` field authored in builder | Round-trips builder ↔ raw; type help shown; nesting/item type configurable | F-12/F-05 | TBD |
+| DAT-13 | Rich text field content | Block JSON round-trips create → save → reload and export → import losslessly | F-07b | TBD |
+| DAT-14 | Conditional validation rule violated | Field errors in the form + F-07a preview, and rejected at the write path | F-12a | TBD |
+| DAT-15 | Calculated field / rollup value | Derived value computed (never trusted from imported data); recalculated after a referenced record is edited/deleted | F-14a | TBD |
 | CON-01 | Two tabs edit the same record | Last-write-wins deterministically; BroadcastChannel notifies; no corruption | F-31 | TBD |
 | CON-02 | Tab A writes while user reloads tab B | Reloaded state is consistent; no dangling partial write visible | F-31 | TBD |
 | OFF-01 | Action queued offline applies on reconnect | Queue auto-applies and reconciles; none lost | F-37/F-48 | TBD |
@@ -41,7 +45,7 @@ Categories: **STO** storage · **CON** concurrency · **OFF** offline · **DAT**
 | OFF-03 | Offline create → reload | Data survives reload; still valid and exported later | F-10 | TBD |
 | I18N-01 | `dir=rtl` active | Whole layout mirrors; tables scroll/column order correct | F-20 | TBD |
 | I18N-02 | Physical CSS properties in source | Static-analysis test fails CI (logical props only) | F-20 | TBD |
-| I18N-03 | Mixed BiDi text in BlockNote | Per-paragraph direction correct; caret movement sane | F-21 | TBD |
+| I18N-03 | Mixed BiDi text in BlockNote | Per-paragraph direction correct; caret movement sane | F-21/F-07b | TBD |
 | I18N-04 | LTR → RTL mid-session | Content and formatting preserved | F-21 | TBD |
 | I18N-05 | Locale missing a translation key | Falls back (fallback locale → key); UI never breaks | F-22 | TBD |
 | I18N-06 | Long/emoji/unicode field content | Layout never breaks or overflows at any breakpoint | F-20/F-22 | TBD |
@@ -57,7 +61,7 @@ Categories: **STO** storage · **CON** concurrency · **OFF** offline · **DAT**
 | PERF-01 | 1k+ records in table | Responsive sort/filter/pagination | F-09 | TBD |
 | PERF-02 | 10k+ rows import/export | Chunked/streaming; UI stays responsive; quota honored | F-27/F-28 | TBD |
 | SW-01 | Service worker updates | IndexedDB data survives install/activate/update cycle | F-36 | TBD |
-| THEME-01 | Theme toggle + reload | Choice persists; BlockNote follows mode | F-18 | TBD |
+| THEME-01 | Theme toggle + reload | Choice persists; BlockNote follows mode | F-18/F-07b | TBD |
 | THEME-02 | Custom theme registered | Whole app switches via variable set, no code change | F-19 | TBD |
 | SEC-01 | Imported JSON contains eval-like payload | Never evaluated/executed; sanitized | F-40 | TBD |
 | SEC-02 | Backend/AI credentials | Stored in IndexedDB only; never in logs, URLs, or bundle | F-40/F-48/F-46 | TBD |

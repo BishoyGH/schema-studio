@@ -124,6 +124,33 @@ describe('SchemaForm tabbed editor', () => {
     expect(screen.getByLabelText('Required email')).toBeChecked()
   })
 
+  it('explains field types, including object and array', async () => {
+    const user = userEvent.setup()
+    renderForm()
+
+    await user.click(screen.getByRole('tab', { name: /raw json/i }))
+    fireEvent.change(screen.getByLabelText('Schema JSON'), {
+      target: {
+        value: JSON.stringify({
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            meta: { type: 'object' },
+            tags: { type: 'array' },
+          },
+        }),
+      },
+    })
+    await user.click(screen.getByRole('tab', { name: /builder/i }))
+
+    expect(screen.getByText('Text value.')).toBeInTheDocument()
+    expect(
+      screen.getByText(/Nested group of named fields \(a sub-record\)/),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/Ordered list of values/)).toBeInTheDocument()
+    expect(screen.getAllByText(/available in the Raw JSON tab/).length).toBe(2)
+  })
+
   it('blocks saving invalid Raw JSON with line/column and keeps Builder state', async () => {
     const user = userEvent.setup()
     const { onSubmit } = renderForm()

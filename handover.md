@@ -86,6 +86,67 @@ Everything downstream builds on this phase. The record model is finalized here (
 - [x] [TEST] Storage-boundary rejection: raw invalid `data` fails `createRecord`/`updateRecord` with `StorageError`
 - [x] [TEST] Integration test: full record lifecycle for a sample schema, including applied defaults and an invalid-data reject
 
+## Phase 1.5 — Authoring UX Essentials (immediate priority, F-07a – F-12a)
+These land immediately after F-07, **ahead of F-08**. The app is hard to use without a live preview and a rich text field, so both — plus the full visual builder that makes them shine — are promoted here. The file is ordered by dependency; work top-down.
+
+### F-07a. Schema Form & Validation Preview — live "what will my form do" — TOP PRIORITY
+> **Moved up** from Phase 3 (was F-13); the old F-13 entry is kept only as a pointer. The read-only live **JSON Schema mirror** moved here from F-12.
+- [ ] Real-time **live panel** inside the editor (visible in both the Builder tab and Raw tab) that renders the record form the current schema produces, via the F-04 bridge + the F-07 form engine; re-renders as the schema edits (debounced for large schemas)
+- [ ] **Live generated JSON Schema mirror** (read-only) so authors watch the raw JSON update as they edit the Builder; the Raw tab stays the editable copy
+- [ ] Read-only mirror: preview never saves; it only shows what records will look like
+- [ ] **Interactive validation**: typing sample values in the preview shows inline field errors identical to the real record form (F-07)
+- [ ] **Auto-fill sample data**: a button fills a valid record sample per the current schema, and an "invalid variant" view fills one that violates constraints so errors light up
+- [ ] **Validate pasted data**: paste an arbitrary record blob → Zod validates it → errors mapped to fields; passes through the same `unsupported[]` reporting (F-04)
+- [ ] `unsupported[]`/advanced keyword fields degrade to a generic input flagged "advanced — not validated"
+- [ ] Invalid/partial schema → preview disables cleanly with the raw parse error and never blocks editing
+- [ ] Renders F-14 `id` (read-only chip) and `reference` (linked display) fields when present, and the F-07b rich-text field
+- [ ] Keyboard-complete panel toggle, RTL-safe, 44px touch targets (F-33)
+- [ ] [TEST] Form renders per supported types/constraints; live updates on schema edit (property-based round-trip)
+- [ ] [TEST] Interactive validation matches F-07 behavior for the same values
+- [ ] [TEST] Auto-fill valid passes; auto-fill invalid lights the expected field errors
+- [ ] [TEST] Pasted-data validation maps errors to fields incl. `unsupported[]` flags
+- [ ] [TEST] Invalid schema disables preview cleanly; preview parity with touch/keyboard audit
+
+### F-07b. Rich Text / Block Content Field Type + BlockNote Editor — TOP PRIORITY
+- [ ] New field type represented as `x-schema-studio: { "kind": "richText" }` — this **introduces the `x-schema-studio` extension namespace** that F-14 later reuses for `id`/`reference`; preserved by the Raw tab and structural validator (F-03/F-04)
+- [ ] BlockNote-based editor control (new `@blocknote/*` deps) used in the record form (F-07) and the F-07a live preview; content stored as BlockNote block JSON inside the record
+- [ ] F-04 bridge maps `richText` → loosely-validated block content (unknown constructs reported via `unsupported[]` rather than mis-validated)
+- [ ] Builder picker (F-05 slice / F-12) exposes the field type; `describeRecordFields` (F-07) gains a `richText` kind
+- [ ] Views (F-09) render rich content read-only (document/gallery renderers)
+- [ ] Editor follows app theme (F-18), supports LTR/RTL + BiDi (F-20/F-21), is cached by the service worker (F-36), and round-trips through import/export (F-26/F-28)
+- [ ] Keyboard-complete, 44px touch targets (F-23/F-33)
+- [ ] [TEST] Rich text field: create → edit → save → reload round-trips block JSON
+- [ ] [TEST] Preview (F-07a) renders the rich text control and validates it
+- [ ] [TEST] RTL/BiDi content preserved; editor theme matches app theme
+- [ ] [TEST] Export → import round-trips rich text content losslessly
+
+### F-12. Visual Schema Builder (User-Friendly Schema Creator) — TOP PRIORITY
+> **Boundary note**: F-05 already ships a minimal builder slice (add/remove/reorder fields, name/type/required/description, `additionalProperties`). F-12 is the **superset** — constraints, nesting, `enum`/`const` — built on the same tabs without changing the F-05 architecture. **Elevated here from Phase 3** so authors get a complete authoring loop alongside F-07a/F-07b.
+- [ ] Field type picker covering the core JSON Schema types: `string`, `number`, `integer`, `boolean`, `null`, `object`, `array`, plus `enum`/`const` value sets
+- [ ] **`object` = a nested group of named properties** (a sub-record), edited inline one level at a time (breadcrumb/stack navigation for depth)
+- [ ] **`array` = an ordered list**, with an `items` schema (scalar **or** object → a repeatable group) and `minItems`/`maxItems`/`uniqueItems`
+- [ ] Type-aware constraint inputs: strings (`minLength`/`maxLength`/`pattern`/`format`), numbers (`minimum`/`maximum`/exclusive bounds/`multipleOf`), arrays (see above)
+- [ ] `additionalProperties` toggle (root + nested)
+- [ ] Field-level `default` and `description` (rendered as help text) written into the generated JSON Schema
+- [ ] Loads any existing schema back into the builder: constructs the builder understands are editable; constructs it doesn't (`$ref`, `if`/`then`/`else`, `patternProperties`, combinators, etc.) are preserved untouched and surfaced as an "advanced — edit in Raw JSON" badge rather than dropped or silently mangled
+- [ ] Round-trip guarantee: Builder output is valid per F-03 structural validation and compiles through F-04 `jsonSchemaToZod()`
+- [ ] Exposes the `id`/`reference` (F-14) and `richText` (F-07b) field types (builder can author them; unknown-to-builder advanced keywords still preserved)
+- [ ] Seeded by F-15 schema inference: inferred schema opens pre-filled in the builder for review before save
+- [ ] Paired with the F-07a form/validation preview panel (same editor, shared form state)
+- [ ] Fully keyboard-navigable (field rows, keyboard reorder, add-field shortcut), 44px touch targets (F-33), RTL-safe with logical properties only (F-20)
+- [ ] [TEST] Builder produces structurally valid JSON Schema for every supported type/constraint combination (table-driven)
+- [ ] [TEST] Round-trip: existing schema → builder → JSON → builder → JSON is lossless for supported constructs
+- [ ] [TEST] Unsupported constructs survive an edit session byte-identical and are flagged as advanced
+- [ ] [TEST] `object` nests and `array`-of-object round-trips; keyboard-only + touch-target audit (parity with F-23 / F-33)
+
+### F-12a. Advanced & Conditional Validation Rules
+- [ ] Conditional & cross-field rules authored in the schema and enforced in the form: `if`/`then`/`else`, `dependentRequired`, `dependentSchemas`, conditional-required, and cross-field comparisons
+- [ ] F-04 bridge gains support (or an explicit best-effort mapping) for these keywords; anything it cannot yet enforce is reported via `unsupported[]` and surfaced in the F-07a preview as "advanced — not validated"
+- [ ] Enforced identically in the F-07 record form (live) and at the write-path boundary (F-07 `withRecordValidation`), and shown in the F-07a preview
+- [ ] Builder (F-12) can author simple conditional/required rules; complex rules degrade to the Raw JSON tab
+- [ ] [TEST] Conditional rule: value violates `if`/`then` → field errors in form + preview + storage rejection
+- [ ] [TEST] `dependentRequired`/`dependentSchemas` enforced; unsupported rule flags "not validated" without breaking the schema
+
 ### F-08. Schema List & Search (TanStack Query + Table)
 - [ ] Server-state cache of schemas via TanStack Query (IndexedDB as the "server"), workspace-scoped (F-06)
 - [ ] Table with sorting, filtering, pagination, search
@@ -128,46 +189,15 @@ Everything downstream builds on this phase. The record model is finalized here (
 - [ ] [TEST] Green run on `main` covering every job above; a deliberately broken PR turns the run red
 - [ ] [TEST] Failing e2e uploads report/trace artifacts; a coverage drop blocks merge
 
-## Phase 3 — Schema Authoring Core (F-12 – F-15)
-The builder, live preview, and ids/relationships share the same editor + JSON→Zod bridge; author them together so field types and preview stay consistent.
+## Phase 3 — Schema Authoring Core (F-13 – F-15)
+The builder, live preview, and rich text field type were **promoted to Phase 1.5** (F-07a/F-07b/F-12/F-12a). What remains here is ids/relationships and schema inference, which build on the same editor + JSON→Zod bridge.
 
-### F-12. Visual Schema Builder (User-Friendly Schema Creator) — TOP PRIORITY
-> **Boundary note**: F-05 already ships a minimal builder slice (add/remove/reorder fields, name/type/required/description, `additionalProperties`). F-12 is the **superset** — constraints, nesting, `enum`/`const`, live preview integration — built on the same tabs without changing the F-05 architecture.
-- [ ] Field type picker covering the core JSON Schema types: `string`, `number`, `integer`, `boolean`, `null`, `object`, `array`, plus `enum`/`const` value sets
-- [ ] Type-aware constraint inputs: strings (`minLength`/`maxLength`/`pattern`/`format`), numbers (`minimum`/`maximum`/exclusive bounds/`multipleOf`), arrays (`items` type + `minItems`/`maxItems`/`uniqueItems`)
-- [ ] Nested structures: object fields expand inline (one level at a time, breadcrumb/stack navigation for depth), array-of-object item editing, `additionalProperties` toggle
-- [ ] Field-level `default` and `description` (rendered as help text) written into the generated JSON Schema
-- [ ] **Live generated JSON Schema preview** that updates as the user edits (read-only mirror; the Raw tab is the editable copy)
-- [ ] Loads any existing schema back into the builder: constructs the builder understands are editable; constructs it doesn't (`$ref`, `if`/`then`/`else`, `patternProperties`, combinators, etc.) are preserved untouched and surfaced as an "advanced — edit in Raw JSON" badge rather than dropped or silently mangled
-- [ ] Round-trip guarantee: Builder output is valid per F-03 structural validation and compiles through F-04 `jsonSchemaToZod()`
-- [ ] Exposes the `id` and `reference` field types defined by F-14 (builder can author them; unknown-to-builder advanced keywords still preserved)
-- [ ] Seeded by F-15 schema inference: inferred schema opens pre-filled in the builder for review before save
-- [ ] Paired with the F-13 form/validation preview panel (same editor, shared form state)
-- [ ] Fully keyboard-navigable (field rows, keyboard reorder, add-field shortcut), 44px touch targets (F-33), RTL-safe with logical properties only (F-20)
-- [ ] [TEST] Builder produces structurally valid JSON Schema for every supported type/constraint combination (table-driven)
-- [ ] [TEST] Round-trip: existing schema → builder → JSON → builder → JSON is lossless for supported constructs
-- [ ] [TEST] Unsupported constructs survive an edit session byte-identical and are flagged as advanced
-- [ ] [TEST] Keyboard-only + touch-target audit of the builder (parity with F-23 / F-33)
-
-### F-13. Schema Form & Validation Preview — live "what will my form do"
-- [ ] Real-time **live panel** inside the editor (visible in both the Builder tab and Raw tab) that renders the record form the current schema produces, via the F-04 bridge + the F-07 form engine; re-renders as the schema edits (debounced for large schemas)
-- [ ] Read-only mirror: preview never saves; it only shows what records will look like
-- [ ] **Interactive validation**: typing sample values in the preview shows inline field errors identical to the real record form (F-07)
-- [ ] **Auto-fill sample data**: a button fills a valid record sample per the current schema, and an "invalid variant" view fills one that violates constraints so errors light up
-- [ ] **Validate pasted data**: paste an arbitrary record blob → Zod validates it → errors mapped to fields; passes through the same `unsupported[]` reporting (F-04)
-- [ ] `unsupported[]`/advanced keyword fields degrade to a generic input flagged "advanced — not validated"
-- [ ] Invalid/partial schema → preview disables cleanly with the raw parse error and never blocks editing
-- [ ] Renders F-14 `id` (read-only chip) and `reference` (linked display) fields when present
-- [ ] Keyboard-complete panel toggle, RTL-safe, 44px touch targets (F-33)
-- [ ] [TEST] Form renders per supported types/constraints; live updates on schema edit (property-based round-trip)
-- [ ] [TEST] Interactive validation matches F-07 behavior for the same values
-- [ ] [TEST] Auto-fill valid passes; auto-fill invalid lights the expected field errors
-- [ ] [TEST] Pasted-data validation maps errors to fields incl. `unsupported[]` flags
-- [ ] [TEST] Invalid schema disables preview cleanly; preview parity with touch/keyboard audit
+### F-13. Schema Form & Validation Preview — **moved to F-07a** (Phase 1.5)
+> Relocated to the immediate-priority block; this entry is kept only as a pointer so the ID sequence has no gap. See **F-07a**.
 
 ### F-14. IDs & Relationships (auto ids + reference fields, ObjectId-style)
 - [ ] **Auto-generated immutable unique id** (`_id`) for every schema and record, generated client-side, never reused after delete; surfaced as an `id` field type in the builder (F-12)
-- [ ] **JSON Schema representation**: custom extension keywords preserved by the raw tab and validator — `x-schema-studio: { "kind": "id" }` and `x-schema-studio: { "kind": "reference", "targetSchema": "<schemaId>", "nullable": boolean }`; F-04 bridge maps `id` → read-only `z.string()` and `reference` → optional/required `z.string()` per `nullable`
+- [ ] **JSON Schema representation**: custom extension keywords preserved by the raw tab and validator — `x-schema-studio: { "kind": "id" }` and `x-schema-studio: { "kind": "reference", "targetSchema": "<schemaId>", "nullable": boolean }`; reuses the `x-schema-studio` namespace **introduced by F-07b** (`kind: "richText"`); F-04 bridge maps `id` → read-only `z.string()` and `reference` → optional/required `z.string()` per `nullable`
 - [ ] Reference field values store target schema id + record id; **write-path validation** (F-07) rejects references to non-existent schemas/records
 - [ ] **Relationship enforcement**: deleting a referenced record/schema either **blocks** (with a referrer list) or **cascades** per a configurable per-schema policy; precedence over F-02/F-07 cascade: a schema delete is blocked while referenced unless force-cascade is chosen; broken references are surfaced in the UI
 - [ ] **Cross-workspace references are forbidden by default** (references must stay inside one workspace, F-06 scope)
@@ -178,6 +208,19 @@ The builder, live preview, and ids/relationships share the same editor + JSON→
 - [ ] [TEST] Block-vs-cascade policies behave per policy; force-cascade exposed
 - [ ] [TEST] Broken references surfaced; cross-workspace references rejected
 - [ ] [TEST] View resolution renders target identifiers + navigation
+
+### F-14a. Calculated / Formula Fields (computed values)
+> This defines the previously-ambiguous "dynamic fields": here it means **calculated fields** — read-only values derived from a formula, never user-entered source data. Core enabler for F-43 formulas/rollups.
+- [ ] Author a **calculated field** on a schema: a read-only field whose value is computed from an expression over the record's other fields (e.g. `total = price * quantity`, concatenation, date math); stored via an `x-schema-studio` keyword
+- [ ] Values are **derived, never source data**: not captured as authored input, recomputed on read/edit, excluded from required-input validation but validated as output
+- [ ] **Rollups across references** (`count`/`sum`/`avg` over records linked via F-14 reference fields)
+- [ ] **Safe expression evaluation** — no `eval`/`Function` on untrusted input (honors F-40); invalid formulas surface a clear schema error
+- [ ] Rendered read-only in the record form (F-07), the F-07a preview, and views (F-09); recalculates live as inputs change
+- [ ] Import/export: formulas travel with the schema; computed values are recomputed, never trusted from imported data
+- [ ] [TEST] In-record formula computes correctly and updates live; edge cases (empty operands, division) deterministic
+- [ ] [TEST] Rollup aggregates referenced records and stays correct after a referenced record is edited/deleted
+- [ ] [TEST] Formula evaluation never executes arbitrary code; invalid formula flags a clear schema error
+- [ ] [TEST] Round-trip: formula field exports/imports losslessly; computed value is recomputed, not trusted
 
 ### F-15. Schema Inference from Data
 - [ ] Auto-infer a JSON Schema from pasted/sample data (type detection, required fields, enums, patterns)
@@ -211,9 +254,9 @@ RTL, themes, keyboard, and undo/redo are cheap to enforce early and expensive to
 ### F-18. Theme System (Dark / Light / System)
 - [ ] Light, dark, and system (follows `prefers-color-scheme`) modes; toggle in header/settings
 - [ ] All colors via Tailwind v4 `@theme` CSS variables — no hardcoded hex in components
-- [ ] Choice persisted in IndexedDB; editor (BlockNote) theme follows app theme
+- [ ] Choice persisted in IndexedDB; rich text editor (BlockNote, F-07b) theme follows app theme
 - [ ] [TEST] Toggle cycles light ↔ dark; system mode tracks OS change live
-- [ ] [TEST] Theme persists across reload; BlockNote editor colors match mode
+- [ ] [TEST] Theme persists across reload; BlockNote (F-07b) editor colors match mode
 
 ### F-19. Custom Theme Framework (Future-Proofing)
 - [ ] Theme registry: themes are swappable CSS variable sets (architecture ready now, themes added later)
@@ -230,6 +273,7 @@ RTL, themes, keyboard, and undo/redo are cheap to enforce early and expensive to
 - [ ] [TEST] Static-analysis test: no physical margin/padding utilities in source
 
 ### F-21. RTL in Rich Editor (BlockNote)
+> Depends on the rich text field type + editor introduced in **F-07b** (Phase 1.5).
 - [ ] BlockNote content direction follows app direction; per-paragraph BiDi (Arabic/Hebrew + Latin mixed text)
 - [ ] Toolbar alignment, placeholders, and keyboard flow RTL-correct
 - [ ] [TEST] RTL document: text alignment, caret movement, mixed BiDi rendering
@@ -343,7 +387,7 @@ RTL, themes, keyboard, and undo/redo are cheap to enforce early and expensive to
 - [ ] [TEST] Install flow test: prompt captured, deferred, triggered from button
 
 ### F-36. Service Worker & App Shell
-- [ ] Service worker via `vite-plugin-pwa`/Workbox: precache app shell, runtime caching (stale-while-revalidate) for BlockNote assets/fonts
+- [ ] Service worker via `vite-plugin-pwa`/Workbox: precache app shell, runtime caching (stale-while-revalidate) for BlockNote assets/fonts (F-07b)
 - [ ] Offline fallback page/state; cache versioning + skipWaiting/clientsClaim update flow with "new version available" UI
 - [ ] **Data survives SW updates**: IndexedDB content is never lost during SW install/activate/update
 - [ ] [TEST] Playwright offline emulation: app shell loads with network disabled
@@ -405,7 +449,7 @@ F-43–F-48 are designed for and build on earlier features. Do not build until t
 
 ### F-45. Content Hub Mode (document-centric workspace)
 - [ ] Pages, blocks, nested documents, links between documents — a wiki-style content layer over the same schema + records model
-- [ ] Core enabler: block-based content field type (F-13 preview renders it); document renderer as a new view
+- [ ] Core enabler: block-based content field type (F-07b; F-07a preview renders it); document renderer as a new view
 - [ ] [TEST] Document mode reads/writes through the same storage interface (no new storage path)
 - [ ] [TEST] Documents remain fully offline-editable
 
@@ -457,7 +501,7 @@ A standing, cross-cutting test mechanism that runs at **every phase boundary** t
 
 ## Next Session Checklist
 - [ ] Read `changelog.md` for what the last session completed
-- [ ] Pick the highest unchecked item in this file (works top-down by phase; F-IDs are ordered by dependency)
+- [ ] Pick the highest unchecked item in this file (works top-down by phase; F-IDs are ordered by dependency). **Phase 1.5 (F-07a/F-07b/F-12/F-12a) is the immediate priority** — it sits right after F-07, before F-08.
 - [ ] Implement feature **and** its paired `[TEST]` items
 - [ ] Run the **Edge-Case Sweep** (see Testing Strategy) at phase boundaries; add any new edge cases to `docs/edge-cases.md` with tests
 - [ ] Run `lint -> typecheck -> test`

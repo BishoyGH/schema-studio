@@ -15,6 +15,7 @@
 - **Workspaces**: Schemas and records are grouped under a container ("workspace"); all storage APIs are workspace-scoped.
 - **IDs & Relationships**: Every schema/record has an auto-generated, immutable, unique id; records may reference records in other schemas via a reference field type with referential enforcement (block or cascade, never a silently broken link).
 - **Form preview**: Schema authoring must expose a live generated-form + validation preview so authors see what records will look like.
+- **Field types**: Support core JSON Schema types plus a rich text / block content field type (BlockNote) via an `x-schema-studio` extension keyword; authoring a rich text field is a first-class, early capability, not an afterthought.
 - **Localization**: User-facing strings are localizable; layout uses only logical properties (RTL).
 - **Undo/Redo**: Destructive/multi-step workflows (builder, record edits, imports) expose undo/redo.
 - **Storage**: All persistence must be handled via IndexedDB (behind a single swappable interface).
