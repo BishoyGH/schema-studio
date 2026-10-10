@@ -101,7 +101,7 @@ export interface StorageAdapter {
 }
 
 export class StorageError extends Error {
-  readonly code: 'NOT_FOUND' | 'CONFLICT' | 'UNAVAILABLE'
+  readonly code: 'NOT_FOUND' | 'CONFLICT' | 'VALIDATION' | 'UNAVAILABLE'
 
   constructor(code: StorageError['code'], message: string) {
     super(message)

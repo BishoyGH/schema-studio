@@ -219,3 +219,31 @@ All notable changes to Schema Studio.
 
 ### Edge Cases
 - Added canon entries `STO-03`/`STO-04` (default-workspace delete, cascading workspace delete), `STO-10` (stale active-workspace id repair); wired UI-02 to the new empty-state test
+
+## Session 13 - [2026-10-10]
+### Added
+- **F-07 Record CRUD Against a Schema** (complete):
+  - `StorageError` gains a `VALIDATION` code; `src/lib/storage/validated.ts` wraps any adapter with **write-path validation** — `createRecord`/`updateRecord` compile the record's schema and reject data that does not conform, so raw paths (future F-26/F-27 imports) can never persist invalid records; `getStorage()`/`setStorage()` always apply the wrapper
+  - `src/lib/records/validation.ts`: `recordZodSchema()` / `validateRecordData()` — single source of truth built on the F-04 bridge; returns parsed data (schema `default` keywords applied) or dot-path field errors plus `unsupported[]` notes
+  - `src/lib/records/fields.ts`: schema-derived field descriptors (`string`/`number`/`integer`/`boolean`/`enum`/`json`/`null`) and `recordDefaults()` for prefilling new records
+  - `src/lib/records/queries.ts`: TanStack Query hooks `useRecords`, `useRecord`, `useCreateRecord`, `useUpdateRecord`, `useDeleteRecord` (workspace-scoped through the F-06 schema scoping)
+  - `src/components/records/record-form.tsx`: dynamic form with `react-hook-form` + a generated Zod resolver, live per-field validation, native controls for scalars/`enum`, checkboxes for booleans, JSON editor with inline parse errors for nested objects/arrays
+  - `src/components/records/record-manager.tsx`: drill-down Records view (back link, schema name, create/edit/delete dialogs, record-label from first scalar field, empty/loading/error states); `SchemaManager` schema cards gain a "Records" button
+- Schema editor property-based round-trip test given an explicit 15 s timeout (it was timing out at 5 s under full-suite parallel load)
+
+### Tests
+- [x] `src/lib/records/validation.test.ts` (12): valid data, field-level dot-path errors, missing required, defaults applied on parse, non-object rejection, unsupported-keyword note without throw, field descriptors + defaults derivation
+- [x] `src/lib/storage/validated.test.ts` (6): defaults applied on create, write-path rejection on create/update (with `VALIDATION` `StorageError` and field details), nothing persisted on reject, `NOT_FOUND` for missing schema/record, non-record calls pass through
+- [x] `src/components/records/record-manager.test.tsx` (6): empty state, create-through-form with defaults persisted, live validation blocks invalid save, raw storage-boundary reject, edit updates, delete after confirmation
+- [x] `schema-manager.test.tsx` gains a drill-in/back navigation test
+- [x] Full `lint` -> `typecheck` -> `test` (120 passing) -> `build` all green
+
+### Decisions
+- Validation lives in a **decorator** (`withRecordValidation`) instead of inside the IndexedDB adapter: the storage engine stays swappable (F-48 can reuse the same guarantee), and `setStorage()` can never accidentally install an unvalidated adapter
+- `validateRecordData` parses (not just checks) so `default` keywords are populated once at the storage boundary; the form additionally prefills them via `recordDefaults()`, making them visible before saving and robust even if the UI path changes
+- Kept `jsonSchemaToZod` (never throws) on the write path rather than `compileJsonSchema`: schemas are already structurally validated at save (F-03), so write-path failures should only come from record data
+- `enum` select values round-trip through `JSON.stringify`/`parse` so non-string enum members (numbers, booleans, `null`) are handled, not just strings
+- The record form is primitive-first for F-07; nested objects/arrays use a JSON editor for now — F-12/F-13 keep the same schema + records model and expand the controls
+
+### Edge Cases
+- Canon entries `DAT-04` / `DAT-05` now have test refs (write-path rejection + defaults-on-create); added `DAT-11` (live form field error matches the write-path rejection; invalid records can never persist)

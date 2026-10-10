@@ -1,10 +1,14 @@
 import { createIndexedDbStorage } from './indexeddb'
 import type { StorageAdapter } from './types'
+import { withRecordValidation } from './validated'
 
 export * from './types'
 export { createIndexedDbStorage, DB_VERSION } from './indexeddb'
+export { withRecordValidation } from './validated'
 
-let current: StorageAdapter = createIndexedDbStorage()
+// Every adapter is wrapped with write-path record validation, so no caller
+// (UI or raw import) can persist data that does not match its schema.
+let current: StorageAdapter = withRecordValidation(createIndexedDbStorage())
 
 export function getStorage(): StorageAdapter {
   return current
@@ -15,5 +19,5 @@ export function getStorage(): StorageAdapter {
  * must only ever reach storage through `getStorage()`.
  */
 export function setStorage(adapter: StorageAdapter): void {
-  current = adapter
+  current = withRecordValidation(adapter)
 }

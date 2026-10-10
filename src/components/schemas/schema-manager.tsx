@@ -1,5 +1,6 @@
-import { Pencil, Plus, Trash2 } from 'lucide-react'
+import { List, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import { RecordManager } from '@/components/records/record-manager'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -73,6 +74,7 @@ export function SchemaManager({ workspaceId }: SchemaManagerProps) {
   const [editorOpen, setEditorOpen] = useState(false)
   const [editing, setEditing] = useState<SchemaEntity | null>(null)
   const [pendingDelete, setPendingDelete] = useState<SchemaEntity | null>(null)
+  const [selectedSchema, setSelectedSchema] = useState<SchemaEntity | null>(null)
 
   const openCreate = () => {
     setEditing(null)
@@ -103,6 +105,15 @@ export function SchemaManager({ workspaceId }: SchemaManagerProps) {
   }
 
   const isSubmitting = createSchema.isPending || updateSchema.isPending
+
+  if (selectedSchema) {
+    return (
+      <RecordManager
+        schema={selectedSchema}
+        onBack={() => setSelectedSchema(null)}
+      />
+    )
+  }
 
   return (
     <section className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8">
@@ -179,13 +190,23 @@ export function SchemaManager({ workspaceId }: SchemaManagerProps) {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 text-xs">
+                <CardContent className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 text-xs">
                   <span className="text-foreground font-medium">
                     {draftLabel(schema.draft)}
                   </span>
                   <span className="text-muted-foreground">
                     Updated {formatUpdatedAt(schema.updatedAt)}
                   </span>
+                  <span className="flex-1" />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedSchema(schema)}
+                  >
+                    <List aria-hidden="true" />
+                    Records
+                  </Button>
                 </CardContent>
               </Card>
             </li>

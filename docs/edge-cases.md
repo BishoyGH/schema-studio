@@ -26,8 +26,9 @@ Categories: **STO** storage · **CON** concurrency · **OFF** offline · **DAT**
 | DAT-01 | Invalid JSON in the Raw editor tab | Parse error with line/column; save blocked; Builder state intact | F-05 | `schema-form.test.tsx` |
 | DAT-02 | Builder ↔ Raw round-trip | Arbitrary schema JSON round-trips through tab switches losslessly (property-based) | F-05 | `schema-form.test.tsx` fast-check |
 | DAT-03 | Unsupported construct in Builder | Survives byte-identical; flagged "advanced — edit in Raw JSON", never mangled | F-12 | TBD |
-| DAT-04 | Record `data` written not matching schema | Storage boundary rejects it, not only the UI form | F-07 | TBD |
-| DAT-05 | Record created with schema `default` present | Defaults applied on create/form-open | F-07/F-04 | TBD |
+| DAT-04 | Record `data` written not matching schema | Storage boundary rejects it, not only the UI form | F-07 | `storage/validated.test.ts` write-path; `record-manager.test.tsx` boundary reject |
+| DAT-05 | Record created with schema `default` present | Defaults applied on create/form-open | F-07/F-04 | `storage/validated.test.ts` defaults; `record-manager.test.tsx` create |
+| DAT-11 | Live form field error vs storage rejection | The form surfaces the same field-level errors as the write path; invalid records can never persist | F-07 | `record-manager.test.tsx` live validation + boundary reject |
 | DAT-06 | Restore old schema version that invalidates records | Records re-validated; non-conforming ones flagged with revert/migrate choice, never dropped | F-30 | TBD |
 | DAT-07 | Import a file with invalid/malformed data | Clear, actionable error; nothing partially persisted | F-26/F-27 | TBD |
 | DAT-08 | Import/export round-trip incl. unicode, empty, nested, ids/references | Lossless; all field types and metadata preserved | F-26/F-28 | TBD |

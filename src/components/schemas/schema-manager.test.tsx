@@ -118,4 +118,32 @@ describe('SchemaManager', () => {
     expect(await screen.findByText(/invalid json/i)).toBeInTheDocument()
     expect(await storage.listSchemas(workspaceId)).toHaveLength(0)
   })
+
+  it('drills into records for a schema and returns to the schema list', async () => {
+    const storage = storages[0]
+    await storage.createSchema({
+      workspaceId,
+      name: 'Person',
+      jsonSchema: {
+        type: 'object',
+        properties: { name: { type: 'string' } },
+      },
+    })
+
+    const user = userEvent.setup()
+    renderManager(workspaceId)
+
+    await user.click(await screen.findByRole('button', { name: /records/i }))
+
+    expect(
+      await screen.findByRole('heading', { name: 'Person', level: 1 }),
+    ).toBeInTheDocument()
+    expect(await screen.findByText('No records yet')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /back to schemas/i }))
+    expect(
+      await screen.findByRole('heading', { name: 'Schemas', level: 1 }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Person')).toBeInTheDocument()
+  })
 })

@@ -10,7 +10,7 @@ The core is schema-driven: schemas and records are grouped under user-created wo
 
 | Done | In progress | Planned |
 | --- | --- | --- |
-| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge, F-05 Tabbed schema editor, F-06 Workspaces | F-07 Record CRUD | F-08 → F-48 |
+| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge, F-05 Tabbed schema editor, F-06 Workspaces, F-07 Record CRUD | F-08 Schema list & search | F-09 → F-48 |
 
 ### Implemented
 
@@ -61,6 +61,15 @@ The core is schema-driven: schemas and records are grouped under user-created wo
 - The default workspace has a fixed id, is created on demand, and cannot be deleted; the active workspace is persisted in settings and falls back to the default if the stored id is stale
 - Schema list and creation are now workspace-scoped, with empty/loading/error states per workspace
 - Tested with `fake-indexeddb` (migration + scoping + cascade) and integration tests for the switcher flows
+
+**F-07 Record CRUD against a schema**
+
+- Dynamic record form generated from the schema with `react-hook-form` + a runtime Zod schema (the F-04 bridge): scalars/`enum` map to native controls, nested objects/arrays get a JSON editor
+- Real-time per-field validation with inline errors (resolver round-trips through the same F-04 bridge the write path uses)
+- Create/edit/delete records via TanStack Query hooks, per-schema in IndexedDB and scoped to the current workspace; record list with a label derived from the schema's first scalar field, plus create/edit/delete dialogs
+- **Write-path validation**: every adapter handed to `getStorage()` is wrapped by `withRecordValidation`, so `createRecord`/`updateRecord` reject data that does not match its schema (`StorageError` `VALIDATION`) — raw import paths cannot persist invalid records
+- **Schema defaults applied on create**: `default` keywords are prefilled in the form and filled in again at the storage boundary, so they can never be lost
+- Schema cards now drill into a Records view (with a back link); tested with `fake-indexeddb` (unit + write-path + full lifecycle)
 
 ## Planned Features
 

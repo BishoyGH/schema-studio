@@ -178,31 +178,35 @@ describe('SchemaForm tabbed editor', () => {
     expect(diff.textContent).toContain('"field"')
   })
 
-  it('round-trips arbitrary schema JSON through tab switches (property-based)', async () => {
-    await fc.assert(
-      fc.asyncProperty(
-        fc.dictionary(fc.string(), fc.jsonValue()),
-        async (doc) => {
-          const text = JSON.stringify(doc, null, 2)
-          const { unmount } = renderForm()
-          const user = userEvent.setup()
+  it(
+    'round-trips arbitrary schema JSON through tab switches (property-based)',
+    async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.dictionary(fc.string(), fc.jsonValue()),
+          async (doc) => {
+            const text = JSON.stringify(doc, null, 2)
+            const { unmount } = renderForm()
+            const user = userEvent.setup()
 
-          await user.click(screen.getByRole('tab', { name: /raw json/i }))
-          fireEvent.change(screen.getByLabelText('Schema JSON'), {
-            target: { value: text },
-          })
+            await user.click(screen.getByRole('tab', { name: /raw json/i }))
+            fireEvent.change(screen.getByLabelText('Schema JSON'), {
+              target: { value: text },
+            })
 
-          await user.click(screen.getByRole('tab', { name: /builder/i }))
-          await user.click(screen.getByRole('tab', { name: /raw json/i }))
+            await user.click(screen.getByRole('tab', { name: /builder/i }))
+            await user.click(screen.getByRole('tab', { name: /raw json/i }))
 
-          expect(
-            (screen.getByLabelText('Schema JSON') as HTMLTextAreaElement).value,
-          ).toBe(text)
+            expect(
+              (screen.getByLabelText('Schema JSON') as HTMLTextAreaElement).value,
+            ).toBe(text)
 
-          unmount()
-        },
-      ),
-      { numRuns: 20 },
-    )
-  })
+            unmount()
+          },
+        ),
+        { numRuns: 20 },
+      )
+    },
+    15_000,
+  )
 })

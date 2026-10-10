@@ -77,14 +77,14 @@ Everything downstream builds on this phase. The record model is finalized here (
 - [x] [TEST] Cascading workspace delete removes schemas + records atomically; zero-schema workspaces render empty states (F-16 onboarding)
 
 ### F-07. Record CRUD Against a Schema — TOP PRIORITY
-- [ ] Dynamic form generation from a selected schema (react-hook-form + generated Zod schema)
-- [ ] Real-time field validation + error display
-- [ ] Create/read/update/delete records stored per-schema in IndexedDB (scoped to the current workspace, F-06)
-- [ ] **Write-path validation**: record `data` is validated against its schema at the storage boundary (not only in the UI), so raw import paths (F-26/F-27) cannot persist invalid records
-- [ ] **Schema defaults applied on create**: `default` keywords (F-04) are applied when a record form opens / a record is created
-- [ ] [TEST] Unit tests: valid record saves; invalid record is rejected with correct field errors
-- [ ] [TEST] Storage-boundary rejection: raw invalid `data` fails `createRecord`/`updateRecord` with `StorageError`
-- [ ] [TEST] Integration test: full record lifecycle for a sample schema, including applied defaults and an invalid-data reject
+- [x] Dynamic form generation from a selected schema (react-hook-form + generated Zod schema)
+- [x] Real-time field validation + error display
+- [x] Create/read/update/delete records stored per-schema in IndexedDB (scoped to the current workspace, F-06)
+- [x] **Write-path validation**: record `data` is validated against its schema at the storage boundary (not only in the UI), so raw import paths (F-26/F-27) cannot persist invalid records
+- [x] **Schema defaults applied on create**: `default` keywords (F-04) are applied when a record form opens / a record is created
+- [x] [TEST] Unit tests: valid record saves; invalid record is rejected with correct field errors
+- [x] [TEST] Storage-boundary rejection: raw invalid `data` fails `createRecord`/`updateRecord` with `StorageError`
+- [x] [TEST] Integration test: full record lifecycle for a sample schema, including applied defaults and an invalid-data reject
 
 ### F-08. Schema List & Search (TanStack Query + Table)
 - [ ] Server-state cache of schemas via TanStack Query (IndexedDB as the "server"), workspace-scoped (F-06)
