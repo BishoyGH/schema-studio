@@ -1,13 +1,13 @@
 # Change Log
 All notable changes to Schema Studio.
 
-## Session 1 - [2025-10-09]
+## Session 1 - [2026-10-09]
 ### Added
 - Created `handover.md` with complete feature backlog organized by priority (critical → fancy), each feature paired with corresponding tests
 - Created `CHANGELOG.md` as the master record of all future changes
 - `AGENTS.md` with repo-specific instructions and tech stack
 
-## Session 2 - [2025-10-09]
+## Session 2 - [2026-10-09]
 ### Updated
 - Expanded `handover.md` from 17 to 28 features (F-01–F-28):
   - **PWA & Offline (F-06–F-09)**: manifest/installability, service worker/app shell, offline-first CRUD, offline UX + action queue
@@ -16,7 +16,7 @@ All notable changes to Schema Studio.
   - Added **Explicit Non-Goals** section (no backend, no push, no analytics)
 - Updated `AGENTS.md` with PWA, mobile-first, theming, and RTL rules
 
-## Session 3 - [2025-10-09]
+## Session 3 - [2026-10-09]
 ### Updated
 - Expanded `handover.md` from 28 to 40 features (F-01–F-40):
   - **Keyboard & Command Palette (F-13–F-14)**: full keyboard-complete workflows, configurable shortcut registry, `?` help overlay, `⌘K`/`Ctrl+K` command palette over a central command registry
@@ -162,21 +162,33 @@ All notable changes to Schema Studio.
 - Added a key/value `settings` store at Dexie v3 (no backfill needed) rather than `localStorage`, honoring the "persist in IndexedDB" rule and giving F-21 a foundation
 - `useSetting`'s query returns `null` (not `undefined`) for unset keys because TanStack Query v5 rejects `undefined` query data
 
-## Session [Session Number] - [Date]
-### Feature Implementation
-- [ ] Feature title here (from handover.md)
-- [ ] Feature description
-
-### Tests
-- [ ] Unit tests for [feature]
-- [ ] Integration tests for [feature]
-- [ ] Visual/e2e tests for [feature]
-
-### Bug Fixes
-- [ ] [Brief description]
+## Session 11 - [2026-10-10]
+### Updated (docs expansion — no code changes)
+- Expanded `handover.md` **and reordered the entire backlog by dependency**, renumbering all unchecked features **F-06–F-48** in seven phases (data model & CRUD → CI gate → schema authoring → cross-cutting UX → BYOD → mobile/PWA/polish → quality) + future extensions. Progress marker: highest unchecked item is now picked top-down by phase.
+- Added feature blocks: **F-06 Workspaces** (group schemas under one container, Dexie v3 → v4), **F-13 Schema Form & Validation Preview** (live form + validation preview: interactive, auto-fill sample, validate pasted data), **F-14 IDs & Relationships** (auto `_id` + ObjectId-style reference fields via `x-schema-studio` extension keywords, referential enforcement, relationship-aware views), **F-22 Localization/i18n**, **F-25 Undo/Redo**, **F-48 User-Provided Backend Connection** (opt-in remote `StorageAdapter`; requires `backend.md` when backend work starts).
+- Expanded **F-16 App Settings** (offline user profile, disabled server-profile group for F-48, first-run onboarding) and renamed **F-17 to "User & Schema Defaults"** (avoids collision with the workspace container; default workspace + per-workspace defaults).
+- Folded audit fixes into blocks: write-path record validation + schema defaults on create (F-07), global record-search index (F-08/F-24), `npm audit`/Dependabot + Edge-Case Sweep CI jobs (F-11), streaming/quota-aware export (F-28), trash/soft-delete (F-29), record re-validation on schema restore (F-30), multi-tab conflict policy (F-31), IndexedDB-survives-SW-update test (F-36), no-required-network + credentials-only-in-IndexedDB rules (F-37/F-40).
+- Added **"Testing Strategy: Edge-Case Sweep"** section (standing mechanism) + new reference `docs/edge-cases.md` canon (seeded, categorized; phase-exit gate wired into the Next Session Checklist).
+- Revised **Non-Goals**: no built-in/managed backend, no hosted sync; optional user-provided backend is a future extension (F-48) and never a hard dependency.
+- Created `docs/edge-cases.md`: Edge-Case Canon (STO/CON/OFF/DAT/I18N/A11Y/UI/Q/PERF/SW/THEME/SEC) + phase-exit checklist.
+- Updated `AGENTS.md` (workspaces, ids/relationships, form preview, localization, undo/redo rules; `backend.md` requirement; non-goal wording) and `README.md` (status F-01–F-05 done + planned F-06–F-48, phased feature list, "no *required* network dependency").
+- Removed the stale "Session [Session Number]" template block; normalized session dates (sessions 1–3 were dated 2025-10-09, the rest 2026-10-09).
 
 ### Changelog
-- Session summary: what was accomplished, blockers, decisions made
+- `handover.md` renumbered per Session 11. Use this mapping when reading older entries:
 
----
-*Note: Copy the section structure above for every new session. Replace bracketed placeholders with actual content before closing the session. Reference the exact handover.md item numbers being worked on.*
+| old | new | old | new | old | new | old | new |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| F-06 | F-12 | F-15 | F-34 | F-24 | F-19 | F-35 | F-45 |
+| F-07 | F-11 | F-16 | F-23 | F-25 | F-20 | F-36 | F-43 |
+| F-08 | F-07 | F-17 | F-24 | F-26 | F-21 | F-37 | F-44 |
+| F-09 | F-35 | F-18 | F-08 | F-27 | F-27 | F-38 | F-47 |
+| F-10 | F-36 | F-19 | F-09 | F-28 | F-28 | F-39 | F-39 |
+| F-11 | F-10 | F-20 | F-26 | F-29 | F-15 | F-40 | F-40 |
+| F-12 | F-37 | F-21 | F-16 | F-30 | F-29 | F-41 | F-41 |
+| F-13 | F-32 | F-22 | F-17 | F-31 | F-30 | F-42 | F-42 |
+| F-14 | F-33 | F-23 | F-18 | F-32 | F-31 | F-34 | F-46 |
+| F-33 | F-38 | new | F-06, F-13, F-14, F-22, F-25, F-48 | — | — | — | — |
+
+### Tests
+- [x] Docs-only change: `lint` -> `typecheck` -> `test` -> `build` all green

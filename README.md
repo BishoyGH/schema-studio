@@ -1,16 +1,16 @@
 # Schema Studio
 
-Offline-first, schema-driven JSON CRUD app. Frontend-only PWA — all data lives in the browser (IndexedDB). No backend, no network dependency.
+Offline-first, schema-driven JSON CRUD app. Frontend-only PWA — all data lives in the browser (IndexedDB). No required network dependency (an optional user-provided backend connection is a designed-for future extension).
 
-The core is schema-driven: every view is a renderer over the same schema + records model, and storage stays swappable behind a single interface so the app can grow into larger product modes without rewrites.
+The core is schema-driven: schemas and records are grouped under user-created workspaces, every schema/record carries an auto-generated id with reference fields and referential integrity, and each view is a renderer over the same schema + records model. Storage stays swappable behind a single interface so the app can grow into larger product modes without rewrites.
 
 ## Status
 
-> Early development. Feature status mirrors the backlog in `handover.md` (F-01–F-42).
+> Early development. Feature status mirrors the phased backlog in `handover.md` (F-01–F-48).
 
 | Done | In progress | Planned |
 | --- | --- | --- |
-| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge, F-05 Tabbed schema editor | F-06 Visual schema builder | F-07 → F-42 |
+| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge, F-05 Tabbed schema editor | F-06 Workspaces, F-07 Record CRUD | F-08 → F-48 |
 
 ### Implemented
 
@@ -55,18 +55,16 @@ The core is schema-driven: every view is a renderer over the same schema + recor
 
 ## Planned Features
 
-Grouped by category; see `handover.md` for the full, test-paired backlog.
+Grouped by dependency (each phase builds on the previous); see `handover.md` for the full, test-paired backlog.
 
-- **Schema authoring (in progress)**: full visual schema builder — constraints, nested objects/arrays, `enum`/`const`, live JSON Schema preview (F-06)
-- **CI (next up)**: GitHub Actions running lint, typecheck, unit, coverage gates, production build, Playwright e2e (desktop + mobile), PWA/offline e2e, Lighthouse PWA audit, axe accessibility, and bundle-size checks
-- **Critical CRUD**: IndexedDB storage layer, JSON Schema CRUD, JSON Schema → Zod bridge, record CRUD
-- **PWA & Offline**: installable manifest, service worker/app shell, offline-first operations and UX
-- **Mobile-first & touch**: 320px-first layout, 44px touch targets, gestures, bottom-tab navigation
-- **Keyboard & command palette**: keyboard-complete workflows, shortcut registry, command palette
-- **Data management**: schema/record browsing, editor, import/export, BYOD (JSON/JSONL/CSV), schema inference
-- **Settings, themes & i18n**: app/workspace defaults, dark/light/system themes, theme registry, full RTL (incl. rich editor)
-- **Quality**: resilience, client-side security/privacy, tooling, test coverage
-- **Future extensions** (design-for, not built): optional AI assistance, document-centric content hub, relational grid, project tracker, local extension framework
+- **Phase 1 — Data model & core CRUD (F-06–F-10)**: workspaces (group schemas under a container), record CRUD with write-path validation + schema defaults, schema list+search with a global record index, record browser, offline-first operations
+- **Phase 2 — Automated quality gate (F-11)**: GitHub Actions running lint, typecheck, unit, coverage gates, production build, Playwright e2e, PWA/offline e2e, Lighthouse PWA audit, axe accessibility, dependency audit, bundle-size, and the Edge-Case Sweep
+- **Phase 3 — Schema authoring (F-12–F-15)**: full visual schema builder (constraints, nesting, `enum`/`const`, live server-less JSON Schema preview), live form + validation preview, auto ids + ObjectId-style reference fields with referential integrity, schema inference
+- **Phase 4 — Cross-cutting UX (F-16–F-25)**: app settings (incl. offline profile + first-run onboarding), user/workspace defaults, dark/light/system themes + theme registry, full RTL (incl. rich editor), localization/i18n, keyboard-complete workflows, command palette, undo/redo
+- **Phase 5 — BYOD (F-26–F-31)**: import/export (JSON/JSONL/CSV), import hub, streaming backup/restore, data management (duplicate/bulk/trash), versioning & history, local sharing + multi-tab conflict policy
+- **Phase 6 — Mobile, PWA & polish (F-32–F-38)**: 320px-first layout, 44px touch targets, gestures, bottom-tab navigation, installable manifest, service worker, offline UX + action queue, app-like polish
+- **Phase 7 — Quality (F-39–F-42)**: resilience, client-side security/privacy, tooling, test coverage
+- **Future extensions** (design-for, not built): relational grid, project tracker, document-centric content hub, opt-in AI assistance, local extension framework, optional user-provided backend connection (`backend.md` documents features + endpoints when that work starts)
 
 ## Stack
 
@@ -112,6 +110,8 @@ src/
   test/            # Vitest setup
   App.tsx          # App shell
 e2e/               # Playwright end-to-end tests
-handover.md        # Feature backlog (F-01–F-42) and session checklist
+docs/edge-cases.md # Edge-Case Canon (tested at every phase boundary)
+handover.md        # Feature backlog (F-01–F-48, phased) and session checklist
+backend.md         # Created when backend work starts (future F-48); features + endpoints
 changelog.md       # Per-session change log
 ```
