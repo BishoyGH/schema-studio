@@ -10,7 +10,7 @@ The core is schema-driven: schemas and records are grouped under user-created wo
 
 | Done | In progress | Planned |
 | --- | --- | --- |
-| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge, F-05 Tabbed schema editor | F-06 Workspaces, F-07 Record CRUD | F-08 → F-48 |
+| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge, F-05 Tabbed schema editor, F-06 Workspaces | F-07 Record CRUD | F-08 → F-48 |
 
 ### Implemented
 
@@ -53,11 +53,20 @@ The core is schema-driven: schemas and records are grouped under user-created wo
 - Last-used tab persists in IndexedDB (new settings store, `StorageAdapter.getSetting`/`setSetting`, Dexie v2 → v3); keyboard-complete tab control (`role="tablist"`, arrows/Home/End, `Ctrl/Cmd+Alt+1|2`)
 - "Preview changes" shows a line diff of the schema document before saving
 
+**F-06 Workspaces**
+
+- Workspaces group schemas (and their records) under one container; every schema/record carries a `workspaceId`
+- Storage contract gains `listWorkspaces` / `getWorkspace` / `getDefaultWorkspace` / `createWorkspace` / `updateWorkspace` / `deleteWorkspace` plus `listSchemas(workspaceId)` and `listAllRecords(workspaceId?)`; Dexie v3 → v4 backfills existing data into a default workspace
+- Workspace CRUD UI: header switcher (native Radix Select, keyboard accessible) with create/rename/delete and an optional color; deleting a workspace cascades its schemas + records atomically
+- The default workspace has a fixed id, is created on demand, and cannot be deleted; the active workspace is persisted in settings and falls back to the default if the stored id is stale
+- Schema list and creation are now workspace-scoped, with empty/loading/error states per workspace
+- Tested with `fake-indexeddb` (migration + scoping + cascade) and integration tests for the switcher flows
+
 ## Planned Features
 
 Grouped by dependency (each phase builds on the previous); see `handover.md` for the full, test-paired backlog.
 
-- **Phase 1 — Data model & core CRUD (F-06–F-10)**: workspaces (group schemas under a container), record CRUD with write-path validation + schema defaults, schema list+search with a global record index, record browser, offline-first operations
+- **Phase 1 — Data model & core CRUD (F-07–F-10)**: record CRUD with write-path validation + schema defaults, schema list+search with a global record index, record browser, offline-first operations
 - **Phase 2 — Automated quality gate (F-11)**: GitHub Actions running lint, typecheck, unit, coverage gates, production build, Playwright e2e, PWA/offline e2e, Lighthouse PWA audit, axe accessibility, dependency audit, bundle-size, and the Edge-Case Sweep
 - **Phase 3 — Schema authoring (F-12–F-15)**: full visual schema builder (constraints, nesting, `enum`/`const`, live server-less JSON Schema preview), live form + validation preview, auto ids + ObjectId-style reference fields with referential integrity, schema inference
 - **Phase 4 — Cross-cutting UX (F-16–F-25)**: app settings (incl. offline profile + first-run onboarding), user/workspace defaults, dark/light/system themes + theme registry, full RTL (incl. rich editor), localization/i18n, keyboard-complete workflows, command palette, undo/redo
@@ -103,8 +112,10 @@ npm run test:e2e       # Playwright (install browsers first: npx playwright inst
 src/
   components/ui/   # Shadcn UI components
   components/schemas/ # Schema CRUD UI (tabbed form, builder, diff, list, manager)
+  components/workspaces/ # Workspace switcher + CRUD dialogs
   lib/             # Shared utilities (cn, etc.)
   lib/schemas/     # Schema validation (Zod), JSON→Zod bridge, diff, query hooks
+  lib/workspaces/  # Workspace query hooks + active-workspace resolution
   lib/settings/    # Persisted app settings hooks (IndexedDB)
   lib/storage/     # Swappable storage layer (IndexedDB via Dexie)
   test/            # Vitest setup

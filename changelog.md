@@ -192,3 +192,30 @@ All notable changes to Schema Studio.
 
 ### Tests
 - [x] Docs-only change: `lint` -> `typecheck` -> `test` -> `build` all green
+
+## Session 12 - [2026-10-10]
+### Added
+- **F-06 Workspaces** (complete; command-palette/mobile-nav integration deferred to F-24/F-34):
+  - `WorkspaceEntity { id, name, color?, createdAt, updatedAt }` + `Create/UpdateWorkspaceInput`; `SchemaEntity` and `RecordEntity` gain `workspaceId` (records derive it from their schema)
+  - `StorageAdapter` gains `listWorkspaces`, `getWorkspace`, `getDefaultWorkspace`, `createWorkspace`, `updateWorkspace`, `deleteWorkspace`; `listSchemas(workspaceId)` replaces the unscoped list and `listAllRecords(workspaceId?)` is now workspace-scopable
+  - Dexie **v3 → v4**: new `workspaces` store, `workspaceId` indexes on schemas/records, and a backfill that moves every existing row into a fixed-id default workspace (`DEFAULT_WORKSPACE_ID`)
+  - Default workspace is created on demand, cannot be deleted (`StorageError` `CONFLICT`), and keeps the app usable even if the persisted active id is stale
+  - Deleting a workspace cascades its schemas + records inside one transaction, leaving other workspaces untouched; creating a schema for a missing workspace throws `NOT_FOUND`
+  - `src/lib/workspaces/queries.ts`: workspace query hooks + `useActiveWorkspace()` which resolves the persisted selection, falls back to the default, and repairs a stale id via the settings store (new `workspace.activeId` key)
+  - `src/components/workspaces/workspace-switcher.tsx`: header switcher (keyboard-accessible Radix Select) with create/rename/delete dialogs and an optional color; `App.tsx` is now a workspace-aware shell that renders a workspace-scoped `SchemaManager`
+
+### Tests
+- [x] `indexeddb.test.ts` reworked + extended (workspace CRUD, default-workspace invariants, cascade delete, schema/record scoping isolation, `listAllRecords(workspaceId)`, and a v3 → v4 backfill migration test)
+- [x] `workspace-switcher.test.tsx` (7): default workspace on first run, create + auto-activate, cross-workspace schema isolation, rename, delete-with-confirmation + fallback, default workspace never deletable, stale active-id repair
+- [x] Updated `schema-manager.test.tsx` (workspace-scoped) and `App.test.tsx` (async workspace shell); `src/test/setup.ts` gained jsdom shims for Radix pointer/scroll APIs
+- [x] `lint` -> `typecheck` -> `test` (95 passing) -> `build` all green
+
+### Decisions
+- Modeled the default workspace with a fixed id (`'default'`) rather than "first workspace" so the cannot-delete invariant and stale-id recovery are deterministic; `getDefaultWorkspace()` is idempotent and also runs migration-safe for fresh installs (Dexie does not run `upgrade()` when creating a brand-new DB)
+- Records inherit `workspaceId` from their schema on create instead of taking it as input, so a record can never be written into a different workspace than its schema (keeps F-14 cross-workspace reference rules coherent)
+- `listSchemas(workspaceId)` is required (not optional) to make workspace scoping impossible to bypass accidentally at call sites
+- Kept the switcher as a self-contained widget driven by `useActiveWorkspace()` in `App`, so `SchemaManager` stays a pure prop-driven view (`key={activeWorkspace.id}` resets its dialog state on switch)
+- Exposed the active workspace name through the Select trigger's `aria-label` (better a11y and deterministic tests) after finding Radix `SelectValue` does not render its text in jsdom until the menu has been opened
+
+### Edge Cases
+- Added canon entries `STO-03`/`STO-04` (default-workspace delete, cascading workspace delete), `STO-10` (stale active-workspace id repair); wired UI-02 to the new empty-state test

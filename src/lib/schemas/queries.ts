@@ -12,13 +12,15 @@ import {
 
 export const schemaKeys = {
   all: ['schemas'] as const,
-  detail: (id: string) => ['schemas', id] as const,
+  list: (workspaceId: string) => ['schemas', 'list', workspaceId] as const,
+  detail: (id: string) => ['schemas', 'detail', id] as const,
 }
 
-export function useSchemas() {
+export function useSchemas(workspaceId: string) {
   return useQuery({
-    queryKey: schemaKeys.all,
-    queryFn: () => getStorage().listSchemas(),
+    queryKey: schemaKeys.list(workspaceId),
+    queryFn: () => getStorage().listSchemas(workspaceId),
+    enabled: Boolean(workspaceId),
   })
 }
 

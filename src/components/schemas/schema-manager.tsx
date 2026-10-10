@@ -39,7 +39,7 @@ function toFormValues(schema: SchemaEntity): SchemaFormValues {
   }
 }
 
-function toInput(values: SchemaFormValues): CreateSchemaInput {
+function toInput(values: SchemaFormValues): Omit<CreateSchemaInput, 'workspaceId'> {
   const parsed = parseJsonSchema(values.jsonSchema)
   return {
     name: values.name,
@@ -60,8 +60,12 @@ function formatUpdatedAt(iso: string): string {
   }).format(new Date(iso))
 }
 
-export function SchemaManager() {
-  const { data: schemas, isLoading, isError } = useSchemas()
+interface SchemaManagerProps {
+  workspaceId: string
+}
+
+export function SchemaManager({ workspaceId }: SchemaManagerProps) {
+  const { data: schemas, isLoading, isError } = useSchemas(workspaceId)
   const createSchema = useCreateSchema()
   const updateSchema = useUpdateSchema()
   const deleteSchema = useDeleteSchema()
@@ -87,7 +91,7 @@ export function SchemaManager() {
     if (editing) {
       updateSchema.mutate({ id: editing.id, input }, { onSuccess: closeEditor })
     } else {
-      createSchema.mutate(input, { onSuccess: closeEditor })
+      createSchema.mutate({ workspaceId, ...input }, { onSuccess: closeEditor })
     }
   }
 

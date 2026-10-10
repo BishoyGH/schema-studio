@@ -9,19 +9,20 @@ import {
   type StorageAdapter,
 } from '@/lib/storage'
 
-function renderManager() {
+function renderManager(workspaceId: string) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   })
   return render(
     <QueryClientProvider client={client}>
-      <SchemaManager />
+      <SchemaManager workspaceId={workspaceId} />
     </QueryClientProvider>,
   )
 }
 
 describe('SchemaManager', () => {
   let dbName: string
+  let workspaceId: string
   const storages: StorageAdapter[] = []
 
   function newStorage() {
@@ -31,9 +32,10 @@ describe('SchemaManager', () => {
     return storage
   }
 
-  beforeEach(() => {
+  beforeEach(async () => {
     dbName = `schema-studio-test-${crypto.randomUUID()}`
-    newStorage()
+    const storage = newStorage()
+    workspaceId = (await storage.createWorkspace({ name: 'Projects' })).id
   })
 
   afterEach(async () => {
@@ -43,7 +45,7 @@ describe('SchemaManager', () => {
 
   it('creates a schema and persists it across a reload', async () => {
     const user = userEvent.setup()
-    const first = renderManager()
+    const first = renderManager(workspaceId)
 
     await user.click(await screen.findByRole('button', { name: /new schema/i }))
     await user.type(screen.getByLabelText('Name'), 'Person')
@@ -65,13 +67,13 @@ describe('SchemaManager', () => {
     first.unmount()
 
     newStorage()
-    renderManager()
+    renderManager(workspaceId)
 
     await waitFor(() =>
       expect(screen.getByText('Person')).toBeInTheDocument(),
     )
 
-    const persisted = await storages[1].listSchemas()
+    const persisted = await storages[1].listSchemas(workspaceId)
     expect(persisted).toHaveLength(1)
     expect(persisted[0].jsonSchema).toEqual({
       type: 'object',
@@ -82,10 +84,14 @@ describe('SchemaManager', () => {
 
   it('deletes a schema after confirmation', async () => {
     const storage = storages[0]
-    await storage.createSchema({ name: 'Temporary', jsonSchema: {} })
+    await storage.createSchema({
+      workspaceId,
+      name: 'Temporary',
+      jsonSchema: {},
+    })
 
     const user = userEvent.setup()
-    renderManager()
+    renderManager(workspaceId)
 
     await user.click(await screen.findByRole('button', { name: /delete temporary/i }))
     await user.click(screen.getByRole('button', { name: /^delete$/i }))
@@ -93,13 +99,13 @@ describe('SchemaManager', () => {
     await waitFor(() =>
       expect(screen.queryByText('Temporary')).not.toBeInTheDocument(),
     )
-    expect(await storage.listSchemas()).toHaveLength(0)
+    expect(await storage.listSchemas(workspaceId)).toHaveLength(0)
   })
 
   it('shows validation errors and does not save invalid input', async () => {
     const storage = storages[0]
     const user = userEvent.setup()
-    renderManager()
+    renderManager(workspaceId)
 
     await user.click(await screen.findByRole('button', { name: /new schema/i }))
     await user.click(screen.getByRole('tab', { name: /raw json/i }))
@@ -110,6 +116,6 @@ describe('SchemaManager', () => {
 
     expect(await screen.findByText(/name is required/i)).toBeInTheDocument()
     expect(await screen.findByText(/invalid json/i)).toBeInTheDocument()
-    expect(await storage.listSchemas()).toHaveLength(0)
+    expect(await storage.listSchemas(workspaceId)).toHaveLength(0)
   })
 })

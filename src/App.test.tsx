@@ -11,11 +11,11 @@ describe('App', () => {
     ).toBeInTheDocument()
   })
 
-  it('offers a way to create a schema', () => {
+  it('offers a way to create a schema once a workspace is ready', async () => {
     render(<App />)
 
     expect(
-      screen.getAllByRole('button', { name: /new schema/i }).length,
+      (await screen.findAllByRole('button', { name: /new schema/i })).length,
     ).toBeGreaterThan(0)
   })
 })

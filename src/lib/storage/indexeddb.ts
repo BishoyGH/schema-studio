@@ -1,20 +1,25 @@
 import Dexie, { type Table } from 'dexie'
 import {
+  DEFAULT_WORKSPACE_ID,
   StorageError,
   type CreateRecordInput,
   type CreateSchemaInput,
+  type CreateWorkspaceInput,
   type RecordEntity,
   type SchemaEntity,
   type SettingRecord,
   type StorageAdapter,
   type UpdateRecordInput,
   type UpdateSchemaInput,
+  type UpdateWorkspaceInput,
+  type WorkspaceEntity,
 } from './types'
 
 const DEFAULT_DB_NAME = 'schema-studio'
 const DEFAULT_DRAFT = '2020-12'
+const DEFAULT_WORKSPACE_NAME = 'Default workspace'
 
-export const DB_VERSION = 3
+export const DB_VERSION = 4
 
 function nowIso(): string {
   return new Date().toISOString()
@@ -33,8 +38,12 @@ function createId(): string {
  * v1 -> v2 adds audit-timestamp indexes and backfills missing `createdAt` /
  * `updatedAt` on legacy records (e.g. data imported before timestamps existed).
  * v2 -> v3 adds the key/value `settings` store (no backfill needed).
+ * v3 -> v4 adds the `workspaces` store, gives schemas/records a `workspaceId`
+ * index, and backfills every existing row into a single default workspace so no
+ * data is orphaned by the introduction of workspace scoping.
  */
 class SchemaStudioDatabase extends Dexie {
+  workspaces!: Table<WorkspaceEntity, string>
   schemas!: Table<SchemaEntity, string>
   records!: Table<RecordEntity, string>
   settings!: Table<SettingRecord, string>
@@ -75,6 +84,35 @@ class SchemaStudioDatabase extends Dexie {
       records: 'id, schemaId, createdAt, updatedAt',
       settings: 'key',
     })
+
+    this.version(4)
+      .stores({
+        workspaces: 'id, name, createdAt, updatedAt',
+        schemas: 'id, workspaceId, name, createdAt, updatedAt',
+        records: 'id, workspaceId, schemaId, createdAt, updatedAt',
+        settings: 'key',
+      })
+      .upgrade(async (tx) => {
+        const createdAt = nowIso()
+        await tx.table<WorkspaceEntity, string>('workspaces').add({
+          id: DEFAULT_WORKSPACE_ID,
+          name: DEFAULT_WORKSPACE_NAME,
+          createdAt,
+          updatedAt: createdAt,
+        })
+        await tx
+          .table<SchemaEntity, string>('schemas')
+          .toCollection()
+          .modify((schema) => {
+            if (!schema.workspaceId) schema.workspaceId = DEFAULT_WORKSPACE_ID
+          })
+        await tx
+          .table<RecordEntity, string>('records')
+          .toCollection()
+          .modify((record) => {
+            if (!record.workspaceId) record.workspaceId = DEFAULT_WORKSPACE_ID
+          })
+      })
   }
 }
 
@@ -84,8 +122,86 @@ export function createIndexedDbStorage(
   const db = new SchemaStudioDatabase(options.name ?? DEFAULT_DB_NAME)
 
   return {
-    async listSchemas() {
-      return db.schemas.orderBy('updatedAt').reverse().toArray()
+    async listWorkspaces() {
+      return db.workspaces.orderBy('createdAt').toArray()
+    },
+
+    async getWorkspace(id) {
+      return db.workspaces.get(id)
+    },
+
+    async createWorkspace(input: CreateWorkspaceInput) {
+      const timestamp = nowIso()
+      const workspace: WorkspaceEntity = {
+        id: createId(),
+        name: input.name,
+        color: input.color,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      }
+      await db.workspaces.add(workspace)
+      return workspace
+    },
+
+    async updateWorkspace(id, input: UpdateWorkspaceInput) {
+      return db.transaction('rw', db.workspaces, async () => {
+        const existing = await db.workspaces.get(id)
+        if (!existing) {
+          throw new StorageError('NOT_FOUND', `Workspace ${id} not found`)
+        }
+        const updated: WorkspaceEntity = {
+          ...existing,
+          ...input,
+          id: existing.id,
+          createdAt: existing.createdAt,
+          updatedAt: nowIso(),
+        }
+        await db.workspaces.put(updated)
+        return updated
+      })
+    },
+
+    async deleteWorkspace(id) {
+      if (id === DEFAULT_WORKSPACE_ID) {
+        throw new StorageError(
+          'CONFLICT',
+          'The default workspace cannot be deleted',
+        )
+      }
+      await db.transaction('rw', db.workspaces, db.schemas, db.records, async () => {
+        const workspace = await db.workspaces.get(id)
+        if (!workspace) {
+          throw new StorageError('NOT_FOUND', `Workspace ${id} not found`)
+        }
+        const schemaIds = await db.schemas.where('workspaceId').equals(id).primaryKeys()
+        await db.schemas.bulkDelete(schemaIds)
+        await db.records.where('workspaceId').equals(id).delete()
+        await db.workspaces.delete(id)
+      })
+    },
+
+    async getDefaultWorkspace() {
+      return db.transaction('rw', db.workspaces, async () => {
+        const existing = await db.workspaces.get(DEFAULT_WORKSPACE_ID)
+        if (existing) return existing
+        const timestamp = nowIso()
+        const workspace: WorkspaceEntity = {
+          id: DEFAULT_WORKSPACE_ID,
+          name: DEFAULT_WORKSPACE_NAME,
+          createdAt: timestamp,
+          updatedAt: timestamp,
+        }
+        await db.workspaces.add(workspace)
+        return workspace
+      })
+    },
+
+    async listSchemas(workspaceId) {
+      const schemas = await db.schemas
+        .where('workspaceId')
+        .equals(workspaceId)
+        .toArray()
+      return schemas.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
     },
 
     async getSchema(id) {
@@ -93,18 +209,28 @@ export function createIndexedDbStorage(
     },
 
     async createSchema(input: CreateSchemaInput) {
-      const timestamp = nowIso()
-      const schema: SchemaEntity = {
-        id: createId(),
-        name: input.name,
-        description: input.description ?? '',
-        draft: input.draft ?? DEFAULT_DRAFT,
-        jsonSchema: input.jsonSchema,
-        createdAt: timestamp,
-        updatedAt: timestamp,
-      }
-      await db.schemas.add(schema)
-      return schema
+      return db.transaction('rw', db.workspaces, db.schemas, async () => {
+        const workspace = await db.workspaces.get(input.workspaceId)
+        if (!workspace) {
+          throw new StorageError(
+            'NOT_FOUND',
+            `Cannot create schema: workspace ${input.workspaceId} not found`,
+          )
+        }
+        const timestamp = nowIso()
+        const schema: SchemaEntity = {
+          id: createId(),
+          workspaceId: input.workspaceId,
+          name: input.name,
+          description: input.description ?? '',
+          draft: input.draft ?? DEFAULT_DRAFT,
+          jsonSchema: input.jsonSchema,
+          createdAt: timestamp,
+          updatedAt: timestamp,
+        }
+        await db.schemas.add(schema)
+        return schema
+      })
     },
 
     async updateSchema(id, input: UpdateSchemaInput) {
@@ -117,6 +243,7 @@ export function createIndexedDbStorage(
           ...existing,
           ...input,
           id: existing.id,
+          workspaceId: existing.workspaceId,
           createdAt: existing.createdAt,
           updatedAt: nowIso(),
         }
@@ -137,7 +264,10 @@ export function createIndexedDbStorage(
       return records.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
     },
 
-    async listAllRecords() {
+    async listAllRecords(workspaceId) {
+      if (workspaceId) {
+        return db.records.where('workspaceId').equals(workspaceId).toArray()
+      }
       return db.records.toArray()
     },
 
@@ -157,6 +287,7 @@ export function createIndexedDbStorage(
         const timestamp = nowIso()
         const record: RecordEntity = {
           id: createId(),
+          workspaceId: schema.workspaceId,
           schemaId: input.schemaId,
           data: input.data,
           createdAt: timestamp,

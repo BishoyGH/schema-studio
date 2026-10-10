@@ -15,13 +15,14 @@ Categories: **STO** storage · **CON** concurrency · **OFF** offline · **DAT**
 | --- | --- | --- | --- | --- |
 | STO-01 | Delete schema that has records | Records cascade-deleted atomically; no record without a schema ever exists | F-02/F-07 | `indexeddb.test.ts` cascade |
 | STO-02 | Create record for a missing schema | `StorageError` `NOT_FOUND`; nothing persisted | F-07 | `indexeddb.test.ts` NOT_FOUND |
-| STO-03 | Delete the default workspace | Cannot be deleted (or is re-created); app remains usable with a workspace | F-06 | TBD |
-| STO-04 | Delete a workspace containing schemas/records | Cascade inside one transaction; other workspaces untouched | F-06 | TBD |
+| STO-03 | Delete the default workspace | Cannot be deleted (or is re-created); app remains usable with a workspace | F-06 | `indexeddb.test.ts` default-workspace; `workspace-switcher.test.tsx` |
+| STO-04 | Delete a workspace containing schemas/records | Cascade inside one transaction; other workspaces untouched | F-06 | `indexeddb.test.ts` cascade; `workspace-switcher.test.tsx` delete |
 | STO-05 | Schema/record `_id` uniqueness | Auto-ids are unique, immutable, never reused after delete (incl. across imports) | F-14 | TBD |
 | STO-06 | Create a reference to a missing record/schema | Write-path validation rejects it; no dangling reference can be persisted | F-14/F-07 | TBD |
 | STO-07 | Delete a referenced record/schema | Blocked with referrer list, or cascades per policy; never leaves broken refs silently | F-14 | TBD |
 | STO-08 | Reference across workspaces | Forbidden by default; rejected at write | F-14/F-06 | TBD |
 | STO-09 | Settings store key missing | Returns `null` (not `undefined`); TanStack Query v5 accepts it | F-16 | `queries.ts` useSetting |
+| STO-10 | Persisted active-workspace id points to a deleted/missing workspace | Falls back to the default workspace and repairs the stored selection | F-06 | `workspace-switcher.test.tsx` stale selection |
 | DAT-01 | Invalid JSON in the Raw editor tab | Parse error with line/column; save blocked; Builder state intact | F-05 | `schema-form.test.tsx` |
 | DAT-02 | Builder ↔ Raw round-trip | Arbitrary schema JSON round-trips through tab switches losslessly (property-based) | F-05 | `schema-form.test.tsx` fast-check |
 | DAT-03 | Unsupported construct in Builder | Survives byte-identical; flagged "advanced — edit in Raw JSON", never mangled | F-12 | TBD |
@@ -47,7 +48,7 @@ Categories: **STO** storage · **CON** concurrency · **OFF** offline · **DAT**
 | A11Y-02 | Mouse-free workflow | Every view driveable by keyboard incl. dialogs (focus traps, visible rings) | F-23 | TBD |
 | A11Y-03 | Screen-reader parity mobile/desktop nav | Same route set reachable and labeled on both | F-34 | TBD |
 | UI-01 | 320px viewport | Zero horizontal overflow; tables degrade to cards; all controls reachable | F-32 | TBD |
-| UI-02 | Empty workspace/schema/record list | Renders helpful empty state; first-run onboarding guides | F-16/F-06/F-08/F-09 | TBD |
+| UI-02 | Empty workspace/schema/record list | Renders helpful empty state; first-run onboarding guides | F-16/F-06/F-08/F-09 | F-06 covered by `workspace-switcher.test.tsx`; F-16 onboarding TBD |
 | UI-03 | Component crashes | Error boundary fallback; app stays usable | F-39 | TBD |
 | UI-04 | IndexedDB power/coverage failure | Graceful error UI; no data corruption | F-39 | TBD |
 | Q-01 | Create/update/delete schema or record | TanStack Query cache invalidated; lists rebuild correctly | F-08 | TBD |

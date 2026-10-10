@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getStorage } from '@/lib/storage'
 
 export const SCHEMA_EDITOR_TAB_SETTING = 'schemaEditor.defaultTab'
+export const ACTIVE_WORKSPACE_SETTING = 'workspace.activeId'
 
 export type SchemaEditorTab = 'builder' | 'raw'
 
@@ -46,6 +47,25 @@ export function useSetSchemaEditorTab() {
       getStorage().setSetting(SCHEMA_EDITOR_TAB_SETTING, tab),
     onSuccess: (_result, tab) => {
       queryClient.setQueryData(settingKeys.one(SCHEMA_EDITOR_TAB_SETTING), tab)
+    },
+  })
+}
+
+/** The id of the workspace the user is currently working in. */
+export function useActiveWorkspaceId() {
+  return useSetting<string>(ACTIVE_WORKSPACE_SETTING)
+}
+
+export function useSetActiveWorkspaceId() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (workspaceId: string) =>
+      getStorage().setSetting(ACTIVE_WORKSPACE_SETTING, workspaceId),
+    onSuccess: (_result, workspaceId) => {
+      queryClient.setQueryData(
+        settingKeys.one(ACTIVE_WORKSPACE_SETTING),
+        workspaceId,
+      )
     },
   })
 }

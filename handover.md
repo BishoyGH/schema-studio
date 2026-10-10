@@ -65,16 +65,16 @@ Stack: React + TypeScript, Vite, Tailwind CSS v4, Zod, TanStack Query + TanStack
 Everything downstream builds on this phase. The record model is finalized here (workspace scoping + schema defaults + write-path validation) so later features never trigger a storage re-migration or rework of core CRUD.
 
 ### F-06. Workspaces (group schemas under one container) — TOP PRIORITY
-- [ ] Workspace entity `{ id, name, color?, createdAt, updatedAt }`; `SchemaEntity` and `RecordEntity` gain `workspaceId`
-- [ ] `StorageAdapter` gains workspace-scoped queries (`listWorkspaces`, `createWorkspace`, `updateWorkspace`, `deleteWorkspace`, `listSchemas(workspaceId)`); Dexie migration **v3 → v4** backfills existing schemas/records into a single default workspace
-- [ ] Workspace CRUD UI: create/rename/delete; deleting a workspace cascades schemas + records inside one transaction; a workspace with zero schemas is valid
-- [ ] Default workspace invariants: cannot be deleted (or is transparently re-created); active-workspace selection persisted in settings (F-16)
-- [ ] Workspace switcher in sidebar/home (mobile bottom tab, F-34); reachable via keyboard (F-23) + command palette (F-24) + a shortcut
+- [x] Workspace entity `{ id, name, color?, createdAt, updatedAt }`; `SchemaEntity` and `RecordEntity` gain `workspaceId`
+- [x] `StorageAdapter` gains workspace-scoped queries (`listWorkspaces`, `getWorkspace`, `getDefaultWorkspace`, `createWorkspace`, `updateWorkspace`, `deleteWorkspace`, `listSchemas(workspaceId)`, `listAllRecords(workspaceId?)`); Dexie migration **v3 → v4** backfills existing schemas/records into a single default workspace
+- [x] Workspace CRUD UI: create/rename/delete; deleting a workspace cascades schemas + records inside one transaction; a workspace with zero schemas is valid
+- [x] Default workspace invariants: fixed id, cannot be deleted, transparently (re)created on demand; active-workspace selection persisted in settings (F-16)
+- [x] Workspace switcher in the header, reachable via keyboard (native Radix Select); command-palette registration (F-24) and mobile bottom-tab placement (F-34) deferred to those features
 - [ ] Per-workspace defaults (default view, default sort, form layout) — ties to F-17
 - [ ] Per-workspace import/export and backup options — ties to F-26/F-28
-- [ ] [TEST] Migration v3 → v4: all existing data preserved into the default workspace
-- [ ] [TEST] Scoping isolation: a schema/record is reachable only inside its own workspace
-- [ ] [TEST] Cascading workspace delete removes schemas + records atomically; zero-schema workspaces render empty states (F-16 onboarding)
+- [x] [TEST] Migration v3 → v4: all existing data preserved into the default workspace
+- [x] [TEST] Scoping isolation: a schema/record is reachable only inside its own workspace
+- [x] [TEST] Cascading workspace delete removes schemas + records atomically; zero-schema workspaces render empty states (F-16 onboarding)
 
 ### F-07. Record CRUD Against a Schema — TOP PRIORITY
 - [ ] Dynamic form generation from a selected schema (react-hook-form + generated Zod schema)
