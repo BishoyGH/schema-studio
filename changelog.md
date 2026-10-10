@@ -1,6 +1,25 @@
 # Change Log
 All notable changes to Schema Studio.
 
+## Session 20 - [2026-10-10]
+### Added
+- **F-54 Schema Editor — Three-Pane Studio** (replaces the F-52 two-pane schema editor page):
+  - New pure logic `src/lib/schemas/builder-doc.ts` — read/write document ops over one shared JSON Schema doc (`toDocument`, `readFields`, `addField`, `removeField`, `removeFields` bulk, `renameField`, `moveField`, `reorderField` for drag, `setFieldRequired`, `updateFieldSchema`, `applyFieldType`, `setAdditionalProperties`, `setRootTitle`, `advancedRootKeys`, `isDocEditable`, `uniqueFieldName`) so the Builder, Raw JSON, and future F-12 builder share one source of truth
+  - New `src/lib/schemas/field-types.ts` — the **field-type registry** (`string|number|integer|boolean|null|object|array|richText`) with icons + `OptionDescriptor`s (`FIELD_OPTIONS`/`fieldOptionsFor`) that drive the detail inspector generically (the seam F-12 builds on)
+  - New components under `src/components/schemas/`: `schema-field-outline.tsx` (left pane: searchable list, required/advanced markers, row menu rename/reorder/remove, **multi-select bulk delete**, **drag + `Alt+ArrowUp/Down` keyboard reorder**, pinned **Schema settings** row), `schema-field-detail.tsx` (center pane: Basics/Validation/Advanced via the registry, a **type palette** that adds any field type, schema-settings view), `schema-inspector.tsx` (right pane: `Preview / JSON / Notes` tabs re-hosting the F-07a preview + live JSON mirror), `schema-studio.tsx` (orchestrator: sticky header, Builder | Raw segmented control, diff overlay)
+  - New page `src/pages/schema-editor-studio.tsx`; `src/router.tsx` create/edit schema routes now render it (deleted the old `src/pages/schema-editor.tsx` and the unfilled `field-outline.tsx` placeholder)
+  - Keyboard-complete (`Ctrl/Cmd+Alt+1|2` Builder/Raw, arrow-key tablist, `Alt+Arrow` reorder, row-menu shortcuts), RTL-safe via logical properties, 320px-first responsive layout that stays usable at 50+ fields
+- Test infra: `src/test/setup.ts` now installs a `ResizeObserver` shim (Radix ScrollArea/DropdownMenu) and raises Testing Library's async-util timeout to 5s — the default 1s was too tight for the router's async `beforeLoad` + fake-indexeddb seeding under parallel test load
+
+### Tests
+- [x] `src/components/schemas/schema-studio.test.tsx` (new, 14): three-pane layout; add field → JSON; select field → detail + type change; rename/reorder/remove via row menu; **type-palette add**; **multi-select bulk delete**; **keyboard + drag reorder**; root title + additionalProperties; Review-changes diff overlay; Inspector Preview/JSON/Notes; Raw edits reflect in the Builder; invalid Raw blocks save, keeps last valid state; 60-field outline search (**canon UI-06**)
+- [x] `builder-doc.test.ts` +3: typed `addField`, bulk `removeFields`, drag `reorderField`
+- [x] `lint` → `typecheck` → `test` all green
+- [x] Edge-Case Canon: **UI-06** test ref filled (`schema-studio.test.tsx` large list + search)
+
+### Changed
+- The full-page schema editor is now the three-pane studio; `src/pages/schemas.test.tsx` (page-level create/edit flow) is unchanged and green. The dialog `SchemaForm`/`SchemaBuilder` (F-05 slice) is retained for its own tests and as a future compact dialog.
+
 ## Session 19 - [2026-10-10]
 ### Added
 - **F-53 Compact SaaS Design System v2** — the F-49 primitives are now compact and consistent app-wide:

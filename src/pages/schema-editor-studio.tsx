@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from '@tanstack/react-router'
 import { ArrowLeft } from 'lucide-react'
 import { PageContainer, PageHeader } from '@/components/app/page'
-import { SchemaForm } from '@/components/schemas/schema-form'
+import { SchemaStudio } from '@/components/schemas/schema-studio'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -38,10 +38,11 @@ function toInput(
 }
 
 /**
- * Full-page schema editor (F-52). Create and edit share this component; the
- * presence of a `schemaId` param decides which mode is active.
+ * Full-page schema editor (F-54): a three-pane studio (outline + detail +
+ * inspector) over a single shared document. Create and edit share this
+ * component; the presence of a `schemaId` param decides which mode is active.
  */
-export function SchemaEditorPage() {
+export function SchemaEditorStudioPage() {
   const params = useParams({ strict: false }) as {
     workspaceId: string
     schemaId?: string
@@ -75,10 +76,7 @@ export function SchemaEditorPage() {
     return (
       <PageContainer>
         <Skeleton className="h-8 w-48" />
-        <div className="grid gap-6 lg:grid-cols-2">
-          <Skeleton className="h-96 rounded-lg" />
-          <Skeleton className="h-96 rounded-lg" />
-        </div>
+        <Skeleton className="h-[32rem] rounded-lg" />
       </PageContainer>
     )
   }
@@ -121,19 +119,18 @@ export function SchemaEditorPage() {
         title={isEditing ? 'Edit schema' : 'New schema'}
         description={
           isEditing
-            ? 'Update the schema definition using the Builder or Raw JSON. The preview updates live.'
-            : 'Give your schema a name, then build it visually or edit the JSON directly.'
+            ? 'Update the schema using the outline and detail panes, or switch to Raw JSON. The preview updates live.'
+            : 'Name your schema, then add fields from the outline. Switch to Raw JSON any time.'
         }
       />
 
-      <SchemaForm
+      <SchemaStudio
         key={schemaId ?? 'new'}
         defaultValues={defaultValues}
         submitLabel={isEditing ? 'Save changes' : 'Create schema'}
         isSubmitting={isSubmitting}
         onSubmit={handleSubmit}
         onCancel={goToList}
-        layout="page"
       />
     </PageContainer>
   )

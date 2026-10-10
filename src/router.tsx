@@ -11,7 +11,7 @@ import { DashboardPage } from '@/pages/dashboard'
 import { NotFoundPage } from '@/pages/not-found'
 import { RecordEditorPage } from '@/pages/record-editor'
 import { RecordListPage } from '@/pages/record-list'
-import { SchemaEditorPage } from '@/pages/schema-editor'
+import { SchemaEditorStudioPage } from '@/pages/schema-editor-studio'
 import { SchemaListPage } from '@/pages/schema-list'
 import { SettingsPage } from '@/pages/settings'
 import { WorkspaceEditorPage } from '@/pages/workspace-editor'
@@ -70,13 +70,13 @@ const schemaListRoute = createRoute({
 const schemaCreateRoute = createRoute({
   getParentRoute: () => workspaceLayoutRoute,
   path: 'schemas/new',
-  component: SchemaEditorPage,
+  component: SchemaEditorStudioPage,
 })
 
 const schemaEditRoute = createRoute({
   getParentRoute: () => workspaceLayoutRoute,
   path: 'schemas/$schemaId/edit',
-  component: SchemaEditorPage,
+  component: SchemaEditorStudioPage,
 })
 
 const recordListRoute = createRoute({

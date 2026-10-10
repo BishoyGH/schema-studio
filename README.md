@@ -10,7 +10,7 @@ The core is schema-driven: schemas and records are grouped under user-created wo
 
 | Done | Next | Planned |
 | --- | --- | --- |
-| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge, F-05 Tabbed schema editor, F-06 Workspaces, F-07 Record CRUD, F-07a Form preview, F-07b Rich text field + editor, F-49 Design system primitives + theme toggle, F-50 App shell & routing, F-51 Dashboard, F-52 Page-based editors, F-53 Compact SaaS design system v2 | F-54 Schema editor studio, F-12 Visual schema builder, F-12a Advanced validation rules, F-07c Code-block highlighting | F-08 → F-48 |
+| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge, F-05 Tabbed schema editor, F-06 Workspaces, F-07 Record CRUD, F-07a Form preview, F-07b Rich text field + editor, F-49 Design system primitives + theme toggle, F-50 App shell & routing, F-51 Dashboard, F-52 Page-based editors, F-53 Compact SaaS design system v2, F-54 Schema editor studio | F-12 Visual schema builder, F-12a Advanced validation rules, F-07c Code-block highlighting | F-08 → F-48 |
 
 ### Implemented
 
@@ -94,12 +94,19 @@ The core is schema-driven: schemas and records are grouped under user-created wo
 - **Dashboard** at `/w/$workspaceId`: stat cards, recent schemas with record counts, quick actions (new schema / new record), and an empty-workspace state
 - **Page-based editors**: schema editor is a full page (sticky save bar, Builder | Raw JSON tabs plus a live preview), record form has collapsible field sections, workspace create/edit are pages (delete stays a dialog); every editor is deep-linkable and 320px-first
 
+**F-54 Schema editor — three-pane studio**
+
+- The schema create/edit page is now a **three-pane studio** over one shared Builder | Raw document: a left **fields outline** (type icon, required/advanced markers, row menu with rename/reorder/remove; search, multi-select bulk delete, drag + `Alt+ArrowUp/Down` keyboard reorder, plus a pinned **Schema settings** row for root title + `additionalProperties`), a center **field detail** pane (Basics / Validation / Advanced groups driven by the field-type registry, a **type palette** that adds a field of any type, and a schema-settings view when no field is selected), and a right **Inspector** with `Preview / JSON / Notes` tabs (re-hosting the F-07a preview and a live JSON mirror)
+- A sticky header carries back link, editable title, draft select, Inspector toggle, **Review changes** (schema diff in an overlay dialog), Cancel, and Save; Builder | Raw stays a first-class mode and invalid Raw blocks saving while preserving the last valid builder state
+- Keyboard-complete (`Ctrl/Cmd+Alt+1|2` for Builder/Raw, arrow-key tablist, row-menu shortcuts) with logical properties for RTL and a 320px-first, scrollable layout that stays usable at 50+ fields (canon UI-06)
+- Field operations live in a pure `src/lib/schemas/builder-doc.ts` module and a `src/lib/schemas/field-types.ts` registry so new field types plug in without layout changes (the seam F-12 builds on)
+
 ## Planned Features
 
 Grouped by dependency (each phase builds on the previous); see `handover.md` for the full, test-paired backlog.
 
 - **Phase 1 — Data model & core CRUD (F-08–F-10)**: schema list+search with a global record index, record browser, offline-first operations (record CRUD F-07 already done)
-- **Phase 1.5 — Authoring UX essentials (F-07a–F-12a, immediate priority)**: live schema form + validation preview (F-07a ✓) and rich text / block content field type with a BlockNote editor (F-07b ✓) are done. Next: the **compact SaaS design system v2** (F-53, app-wide density + indigo accent), a **three-pane schema editor studio** (F-54, fields outline · field detail · Preview/JSON/Notes inspector), the full visual schema builder incl. `object` nesting + `array` items (F-12) built on a **field-type registry** with an outline + detail inspector, advanced/conditional validation rules (F-12a), and **code-block syntax highlighting** in the rich editor (F-07c). Promoted ahead of F-08 because authoring is hard to use without them
+- **Phase 1.5 — Authoring UX essentials (F-07a–F-12a, immediate priority)**: live schema form + validation preview (F-07a ✓), rich text / block content field type with a BlockNote editor (F-07b ✓), the compact SaaS design system v2 (F-53 ✓), and the **three-pane schema editor studio** (F-54 ✓, fields outline · field detail · Preview/JSON/Notes inspector) are done. Next: the full visual schema builder incl. `object` nesting + `array` items (F-12) built on a **field-type registry** with an outline + detail inspector (plugs into the F-54 studio), advanced/conditional validation rules (F-12a), and **code-block syntax highlighting** in the rich editor (F-07c). Promoted ahead of F-08 because authoring is hard to use without them
 - **Phase 2 — Automated quality gate (F-11)**: GitHub Actions running lint, typecheck, unit, coverage gates, production build, Playwright e2e, PWA/offline e2e, Lighthouse PWA audit, axe accessibility, dependency audit, bundle-size, and the Edge-Case Sweep
 - **Phase 3 — Schema authoring (F-14–F-15)**: auto ids + ObjectId-style reference fields with referential integrity (F-14), calculated/formula fields incl. rollups (F-14a), schema inference (F-15)
 - **Phase 4 — Cross-cutting UX (F-16–F-25)**: app settings (incl. offline profile + first-run onboarding), user/workspace defaults, dark/light/system themes + theme registry, full RTL (incl. rich editor), localization/i18n, keyboard-complete workflows, command palette, undo/redo

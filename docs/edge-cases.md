@@ -62,7 +62,7 @@ Categories: **STO** storage · **CON** concurrency · **OFF** offline · **DAT**
 | UI-03 | Component crashes | Error boundary fallback; app stays usable | F-39 | TBD |
 | UI-04 | IndexedDB power/coverage failure | Graceful error UI; no data corruption | F-39 | TBD |
 | UI-05 | Hardcoded color or physical CSS property in source | Token-only + logical-properties static scan fails CI | F-53/F-20 | `design-system.test.tsx` |
-| UI-06 | Schema with 50+ fields in the builder | Fields outline stays usable at a constant footprint (scrollable/searchable); search filters rows and the detail pane remains clear | F-12/F-54 | TBD |
+| UI-06 | Schema with 50+ fields in the builder | Fields outline stays usable at a constant footprint (scrollable/searchable); search filters rows and the detail pane remains clear | F-12/F-54 | `schema-studio.test.tsx` large list (60 fields) + search |
 | Q-01 | Create/update/delete schema or record | TanStack Query cache invalidated; lists rebuild correctly | F-08 | TBD |
 | Q-02 | Setting change via hook | Query returns updated value; persists across reload | F-16 | `queries.ts` |
 | PERF-01 | 1k+ records in table | Responsive sort/filter/pagination | F-09 | TBD |

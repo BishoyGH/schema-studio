@@ -31,9 +31,9 @@ Every feature carries a priority tag: **P0** now · **P1** next · **P2** later 
 Work top-down. This list — not the physical position of a feature block — decides sequence.
 
 **P0 — now**
-1. **F-54** Schema Editor — Three-Pane Studio (hosts F-07a + the F-12 builder) — *F-53 Compact SaaS Design System v2 ✓*
-2. **F-12** Visual Schema Builder (uses the locked builder architecture: outline + detail inspector + field-type registry)
-3. **F-12a** Advanced & Conditional Validation Rules
+1. **F-12** Visual Schema Builder (uses the locked builder architecture: outline + detail inspector + field-type registry; plugs into the F-54 studio panes — the studio shell is done) — *F-54 Schema Editor Three-Pane Studio ✓*
+2. **F-12a** Advanced & Conditional Validation Rules
+3. Next after that: **F-07c** Rich editor code-block highlighting (P1)
 
 **P1 — next**
 F-07c · F-11 · F-08 · F-09 · F-10 · F-14 · F-14a · F-15
@@ -105,7 +105,7 @@ F-32 · F-33 · F-34 · F-35 · F-36 · F-37 · F-38 · F-39 · F-40 · F-41 · 
 | F-51 | Dashboard | 1.75 | P0 | done |
 | F-52 | Page-based editors | 1.75 | P0 | done |
 | F-53 | Compact SaaS design system v2 | 1.75 | P0 | done |
-| F-54 | Schema editor studio (three-pane) | 1.75 | P0 | next |
+| F-54 | Schema editor studio (three-pane) | 1.75 | P0 | done |
 | F-07c | Rich editor code-block highlighting | 1.75 | P1 | planned |
 
 ## Phase 0 — Completed (F-01 – F-05)
@@ -320,13 +320,14 @@ The app today is a single centered `max-w-3xl` column with no persistent navigat
 
 ### F-54. Schema Editor — Three-Pane Studio — P0
 > Redesigns the F-52 page-based schema editor around the F-12 builder. Re-hosts F-03/F-05/F-07a components; Raw JSON stays a first-class mode.
-- [ ] **Sticky header**: back/breadcrumb, editable title, draft select, actions (Review diff, toggle Inspector, Cancel, Save)
-- [ ] **Left — Fields outline**: ~32–36px rows (drag handle, type icon, inline-editable name, required dot, advanced dot, row menu) with search, drag + keyboard reorder, multi-select bulk actions, and a pinned **Schema settings** row (root title + "Allow additional properties")
-- [ ] **Center — Field detail**: collapsible **Basics / Validation / Advanced** groups driven by the **field-type registry** (F-12); nested `object`/`array` recurse via breadcrumb; a **type palette** adds fields
-- [ ] **Right — Inspector** tabs `Preview / JSON / Notes` (re-hosts the F-07a preview + JSON mirror); schema diff shows as an overlay dialog
-- [ ] **Builder | Raw** segmented control keeps the raw editor a first-class mode over the same shared state
-- [ ] Fully keyboard-navigable, RTL-safe, 320px-first responsive (pairs with F-23/F-32)
-- [ ] [TEST] Selecting a field opens its detail; adding/reordering/removing/bulk-deleting fields updates the JSON; Inspector tabs and the diff overlay work; Raw still edits the same state
+- [x] **Sticky header**: back/breadcrumb, editable title, draft select, actions (Review diff, toggle Inspector, Cancel, Save)
+- [x] **Left — Fields outline**: ~32–36px rows (drag handle, type icon, inline-editable name, required dot, advanced dot, row menu) with search, drag + keyboard reorder, multi-select bulk actions, and a pinned **Schema settings** row (root title + "Allow additional properties")
+- [x] **Center — Field detail**: collapsible **Basics / Validation / Advanced** groups driven by the **field-type registry** (F-12); nested `object`/`array` recurse via breadcrumb; a **type palette** adds fields
+- [x] **Right — Inspector** tabs `Preview / JSON / Notes` (re-hosts the F-07a preview + JSON mirror); schema diff shows as an overlay dialog
+- [x] **Builder | Raw** segmented control keeps the raw editor a first-class mode over the same shared state
+- [x] Fully keyboard-navigable, RTL-safe, 320px-first responsive (pairs with F-23/F-32) — keyboard reorder, tablist arrow keys, `Ctrl/Cmd+Alt+1|2`; logical properties throughout
+- [x] [TEST] `src/components/schemas/schema-studio.test.tsx` (14): select field → detail; add/rename/reorder/remove + root settings update the JSON; type-palette add; multi-select bulk delete; `Alt+Arrow` and drag reorder; Inspector Preview/JSON/Notes; Review-changes diff overlay; Raw edits reflect in the Builder; invalid Raw blocks save + keeps last valid; 60-field outline search (canon UI-06). Doc ops unit-tested in `builder-doc.test.ts` (`addField` typed, `removeFields`, `reorderField`)
+- [x] Page tests (`src/pages/schemas.test.tsx`) unchanged and green — create/edit routes now render the studio
 
 ## Phase 2 — Automated Quality Gate (F-11)
 
@@ -662,7 +663,7 @@ A standing, cross-cutting test mechanism that runs at **every phase boundary** t
 
 ## Next Session Checklist
 - [ ] Read `changelog.md` for what the last session completed
-- [ ] Pick the top item of the [Priority list](#priority-single-source-of-truth) (NOT the physical position of a feature block). **Start with F-54 (Schema Editor Three-Pane Studio), then F-12 (Visual Schema Builder) using the locked outline + detail + field-type-registry architecture — the builder plugs into the studio's left/center panes.** (F-53 Compact SaaS Design System v2 is done.)
+- [ ] Pick the top item of the [Priority list](#priority-single-source-of-truth) (NOT the physical position of a feature block). **Start with F-12 (Visual Schema Builder) using the locked outline + detail + field-type-registry architecture — it plugs into the done F-54 studio's left/center panes; then F-12a.** (F-53 Compact SaaS Design System v2 and F-54 Schema Editor Three-Pane Studio are done.)
 - [ ] Implement feature **and** its paired `[TEST]` items
 - [ ] Run the **Edge-Case Sweep** (see Testing Strategy) at phase boundaries; add any new edge cases to `docs/edge-cases.md` with tests
 - [ ] Run `lint -> typecheck -> test`
