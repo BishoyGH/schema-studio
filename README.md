@@ -8,9 +8,9 @@ The core is schema-driven: schemas and records are grouped under user-created wo
 
 > Early development. Feature status mirrors the phased backlog in `handover.md` (F-01–F-48).
 
-| Done | Next (Phase 1.5) | Planned |
+| Done | Next | Planned |
 | --- | --- | --- |
-| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge, F-05 Tabbed schema editor, F-06 Workspaces, F-07 Record CRUD, F-07a Form preview, F-07b Rich text field + editor | F-12 Visual schema builder, F-12a Advanced validation rules | F-08 → F-48 |
+| F-01 Project scaffolding, F-02 IndexedDB storage, F-03 Schema CRUD, F-04 JSON→Zod bridge, F-05 Tabbed schema editor, F-06 Workspaces, F-07 Record CRUD, F-07a Form preview, F-07b Rich text field + editor, F-49 Design system primitives + theme toggle, F-50 App shell & routing, F-51 Dashboard, F-52 Page-based editors | F-12 Visual schema builder, F-12a Advanced validation rules | F-08 → F-48 |
 
 ### Implemented
 
@@ -87,6 +87,13 @@ The core is schema-driven: schemas and records are grouped under user-created wo
 - F-04 bridge maps `richText` → a loosely-validated array of blocks (`z.array(z.unknown())`); an unknown `x-schema-studio` `kind` is reported via `unsupported[]` rather than mis-validated
 - Authorable from the visual builder's type picker; `describeRecordFields` gains a `richText` kind and `recordDefaults` prefills an empty block document; record-list labels/summaries flatten the content to plain text
 
+**F-49 / F-50 / F-51 / F-52 — App shell, routing, dashboard, and page-based editors**
+
+- **App shell**: persistent sidebar (Dashboard · Schemas · Settings) on desktop with a slide-over nav on mobile, top bar with workspace switcher, dark/light/system **theme toggle** (persisted in IndexedDB, `system` follows the OS live), search affordance, and profile menu
+- **Routing** (TanStack Router): workspace-scoped URLs (`/w/$workspaceId/...`), `/` resolves the active workspace, deep links land on the exact schema/record/workspace editor, an unknown workspace id falls back to the default, and browser back/forward works
+- **Dashboard** at `/w/$workspaceId`: stat cards, recent schemas with record counts, quick actions (new schema / new record), and an empty-workspace state
+- **Page-based editors**: schema editor is a full page (sticky save bar, Builder | Raw JSON tabs plus a live preview), record form has collapsible field sections, workspace create/edit are pages (delete stays a dialog); every editor is deep-linkable and 320px-first
+
 ## Planned Features
 
 Grouped by dependency (each phase builds on the previous); see `handover.md` for the full, test-paired backlog.
@@ -136,16 +143,21 @@ npm run test:e2e       # Playwright (install browsers first: npx playwright inst
 
 ```
 src/
-  components/ui/   # Shadcn UI components
-  components/schemas/ # Schema CRUD UI (tabbed form, builder, diff, list, manager)
-  components/workspaces/ # Workspace switcher + CRUD dialogs
-  lib/             # Shared utilities (cn, etc.)
-  lib/schemas/     # Schema validation (Zod), JSON→Zod bridge, diff, query hooks
-  lib/workspaces/  # Workspace query hooks + active-workspace resolution
-  lib/settings/    # Persisted app settings hooks (IndexedDB)
-  lib/storage/     # Swappable storage layer (IndexedDB via Dexie)
-  test/            # Vitest setup
-  App.tsx          # App shell
+  router.tsx         # TanStack Router tree; workspace-scoped routes + beforeLoad fallback
+  layouts/           # Route layouts (workspace layout, app shell shell)
+  components/ui/     # Shadcn UI components
+  components/app/    # App shell, theme provider + toggle
+  components/schemas/ # Schema CRUD UI (tabbed form, builder, diff, list, form preview)
+  components/records/ # Record form, rich text editor
+  components/workspaces/ # Workspace CRUD dialogs
+  pages/             # Route pages (dashboard, schemas, records, editors, settings)
+  lib/               # Shared utilities (cn, etc.)
+  lib/schemas/       # Schema validation (Zod), JSON→Zod bridge, diff, query hooks
+  lib/workspaces/    # Workspace query hooks + active-workspace resolution
+  lib/settings/      # Persisted app settings hooks (IndexedDB)
+  lib/storage/       # Swappable storage layer (IndexedDB via Dexie)
+  test/              # Vitest setup + render-app route test harness
+  App.tsx            # Provider composition (query + theme + router)
 e2e/               # Playwright end-to-end tests
 docs/edge-cases.md # Edge-Case Canon (tested at every phase boundary)
 handover.md        # Feature backlog (F-01–F-48, phased) and session checklist

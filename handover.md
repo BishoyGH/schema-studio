@@ -18,6 +18,92 @@ Stack: React + TypeScript, Vite, Tailwind CSS v4, Zod, TanStack Query + TanStack
 - Every future mode must remain fully offline-capable; nothing may introduce a **hard** network dependency.
 - Data-model changes (migrations) are expensive: workspace scoping and id/reference semantics (F-06, F-14) are scheduled early so later features don't cause re-migrations.
 
+## How This File Is Ordered
+Two orderings are kept deliberately separate:
+
+- **Identity + physical order** — every feature has an **immutable F-ID**. The detail blocks below are grouped by phase/milestone and stay put; IDs are **never renumbered** and blocks are **never relocated** when priorities change (cross-references in `README.md`, `changelog.md`, and `docs/edge-cases.md` stay valid forever).
+- **Priority (authoritative)** — the ordered [Priority](#priority-single-source-of-truth) list is the **only** source of truth for what to build next. Reprioritizing means editing that one list, not shuffling prose.
+
+Every feature carries a priority tag: **P0** now · **P1** next · **P2** later · **P3** future.
+
+## Priority (single source of truth)
+
+Work top-down. This list — not the physical position of a feature block — decides sequence.
+
+**P0 — now**
+1. **F-12** Visual Schema Builder
+2. **F-12a** Advanced & Conditional Validation Rules
+
+**P1 — next**
+F-11 · F-08 · F-09 · F-10 · F-14 · F-14a · F-15
+
+**P2 — later**
+F-16 · F-17 · F-18 · F-19 · F-20 · F-21 · F-22 · F-23 · F-24 · F-25 · F-26 · F-27 · F-28 · F-29 · F-30 · F-31
+
+**P3 — future**
+F-32 · F-33 · F-34 · F-35 · F-36 · F-37 · F-38 · F-39 · F-40 · F-41 · F-42 · F-43 · F-44 · F-45 · F-46 · F-47 · F-48
+
+## Status (at a glance)
+
+| id | title | phase | priority | status |
+| --- | --- | --- | --- | --- |
+| F-01 | Project scaffolding | 0 | P3 | done |
+| F-02 | IndexedDB storage layer | 0 | P3 | done |
+| F-03 | Schema CRUD | 0 | P3 | done |
+| F-04 | JSON→Zod bridge | 0 | P3 | done |
+| F-05 | Tabbed schema editor | 0 | P3 | done |
+| F-06 | Workspaces | 1 | P2 | done |
+| F-07 | Record CRUD | 1 | P2 | done |
+| F-07a | Form & validation preview | 1.5 | P2 | done |
+| F-07b | Rich text field + editor | 1.5 | P2 | done |
+| F-08 | Schema list & search | 1 | P1 | planned |
+| F-09 | Record browser | 1 | P1 | planned |
+| F-10 | Offline-first operations | 1 | P1 | planned |
+| F-11 | CI quality gate | 2 | P1 | planned |
+| F-12 | Visual schema builder | 1.5 | P0 | next |
+| F-12a | Advanced validation rules | 1.5 | P0 | planned |
+| F-13 | (pointer → F-07a) | 3 | — | moved |
+| F-14 | IDs & relationships | 3 | P1 | planned |
+| F-14a | Calculated / formula fields | 3 | P1 | planned |
+| F-15 | Schema inference | 3 | P1 | planned |
+| F-16 | App settings | 4 | P2 | planned |
+| F-17 | User & schema defaults | 4 | P2 | planned |
+| F-18 | Theme system | 4 | P2 | planned |
+| F-19 | Custom theme framework | 4 | P3 | planned |
+| F-20 | Full RTL support | 4 | P2 | planned |
+| F-21 | RTL in rich editor | 4 | P2 | planned |
+| F-22 | Localization / i18n | 4 | P2 | planned |
+| F-23 | Full keyboard support | 4 | P2 | planned |
+| F-24 | Command palette | 4 | P2 | planned |
+| F-25 | Undo / redo | 4 | P2 | planned |
+| F-26 | Basic import / export | 5 | P2 | planned |
+| F-27 | Data import hub | 5 | P2 | planned |
+| F-28 | Data export & backup | 5 | P2 | planned |
+| F-29 | Data management | 5 | P2 | planned |
+| F-30 | Versioning & history | 5 | P2 | planned |
+| F-31 | Local sharing | 5 | P2 | planned |
+| F-32 | Mobile-first responsive | 6 | P3 | planned |
+| F-33 | Touch & gestures | 6 | P3 | planned |
+| F-34 | Mobile app navigation | 6 | P3 | planned |
+| F-35 | PWA manifest | 6 | P3 | planned |
+| F-36 | Service worker & app shell | 6 | P3 | planned |
+| F-37 | Offline UX | 6 | P3 | planned |
+| F-38 | App-like polish | 6 | P3 | planned |
+| F-39 | Resilience | 7 | P3 | planned |
+| F-40 | Security & privacy | 7 | P3 | planned |
+| F-41 | Tooling & standards | 7 | P3 | planned |
+| F-42 | Test coverage | 7 | P3 | planned |
+| F-43 | Relational grid mode | ext | P3 | future |
+| F-44 | Project tracking mode | ext | P3 | future |
+| F-45 | Content hub mode | ext | P3 | future |
+| F-46 | AI-assisted features | ext | P3 | future |
+| F-47 | Extension framework | ext | P3 | future |
+| F-48 | User-provided backend | ext | P3 | future |
+| F-49 | App shell & information architecture | 1.75 | P0 | done |
+| F-50 | App shell & routing | 1.75 | P0 | done |
+| F-51 | Dashboard | 1.75 | P0 | done |
+| F-52 | Page-based editors | 1.75 | P0 | done |
+
 ## Phase 0 — Completed (F-01 – F-05)
 
 ### F-01. Project Scaffolding
@@ -64,7 +150,7 @@ Stack: React + TypeScript, Vite, Tailwind CSS v4, Zod, TanStack Query + TanStack
 ## Phase 1 — Data Model & Core CRUD (F-06 – F-10)
 Everything downstream builds on this phase. The record model is finalized here (workspace scoping + schema defaults + write-path validation) so later features never trigger a storage re-migration or rework of core CRUD.
 
-### F-06. Workspaces (group schemas under one container) — TOP PRIORITY
+### F-06. Workspaces (group schemas under one container) — P2 · done
 - [x] Workspace entity `{ id, name, color?, createdAt, updatedAt }`; `SchemaEntity` and `RecordEntity` gain `workspaceId`
 - [x] `StorageAdapter` gains workspace-scoped queries (`listWorkspaces`, `getWorkspace`, `getDefaultWorkspace`, `createWorkspace`, `updateWorkspace`, `deleteWorkspace`, `listSchemas(workspaceId)`, `listAllRecords(workspaceId?)`); Dexie migration **v3 → v4** backfills existing schemas/records into a single default workspace
 - [x] Workspace CRUD UI: create/rename/delete; deleting a workspace cascades schemas + records inside one transaction; a workspace with zero schemas is valid
@@ -76,7 +162,7 @@ Everything downstream builds on this phase. The record model is finalized here (
 - [x] [TEST] Scoping isolation: a schema/record is reachable only inside its own workspace
 - [x] [TEST] Cascading workspace delete removes schemas + records atomically; zero-schema workspaces render empty states (F-16 onboarding)
 
-### F-07. Record CRUD Against a Schema — TOP PRIORITY
+### F-07. Record CRUD Against a Schema — P2 · done
 - [x] Dynamic form generation from a selected schema (react-hook-form + generated Zod schema)
 - [x] Real-time field validation + error display
 - [x] Create/read/update/delete records stored per-schema in IndexedDB (scoped to the current workspace, F-06)
@@ -86,10 +172,10 @@ Everything downstream builds on this phase. The record model is finalized here (
 - [x] [TEST] Storage-boundary rejection: raw invalid `data` fails `createRecord`/`updateRecord` with `StorageError`
 - [x] [TEST] Integration test: full record lifecycle for a sample schema, including applied defaults and an invalid-data reject
 
-## Phase 1.5 — Authoring UX Essentials (immediate priority, F-07a – F-12a)
+## Phase 1.5 — Authoring UX Essentials (F-07a – F-12a; F-12/F-12a are P0)
 These land immediately after F-07, **ahead of F-08**. The app is hard to use without a live preview and a rich text field, so both — plus the full visual builder that makes them shine — are promoted here. The file is ordered by dependency; work top-down.
 
-### F-07a. Schema Form & Validation Preview — live "what will my form do" — TOP PRIORITY
+### F-07a. Schema Form & Validation Preview — live "what will my form do" — P2 · done
 > **Moved up** from Phase 3 (was F-13); the old F-13 entry is kept only as a pointer. The read-only live **JSON Schema mirror** moved here from F-12.
 - [x] Real-time **live panel** inside the editor (visible in both the Builder tab and Raw tab) that renders the record form the current schema produces, via the F-04 bridge + the F-07 form engine; re-renders as the schema edits (debounced for large schemas via `useDeferredValue`)
 - [x] **Live generated JSON Schema mirror** (read-only) so authors watch the raw JSON update as they edit the Builder; the Raw tab stays the editable copy
@@ -121,7 +207,7 @@ These land immediately after F-07, **ahead of F-08**. The app is hard to use wit
 - [ ] [TEST] RTL/BiDi content preserved; editor theme matches app theme — belongs to F-18/F-21 (direction wiring covered now)
 - [ ] [TEST] Export → import round-trips rich text content losslessly — belongs to F-26/F-28
 
-### F-12. Visual Schema Builder (User-Friendly Schema Creator) — TOP PRIORITY
+### F-12. Visual Schema Builder (User-Friendly Schema Creator) — P0
 > **Boundary note**: F-05 already ships a minimal builder slice (add/remove/reorder fields, name/type/required/description, `additionalProperties`). F-12 is the **superset** — constraints, nesting, `enum`/`const` — built on the same tabs without changing the F-05 architecture. **Elevated here from Phase 3** so authors get a complete authoring loop alongside F-07a/F-07b.
 - [ ] Field type picker covering the core JSON Schema types: `string`, `number`, `integer`, `boolean`, `null`, `object`, `array`, plus `enum`/`const` value sets
 - [ ] **`object` = a nested group of named properties** (a sub-record), edited inline one level at a time (breadcrumb/stack navigation for depth)
@@ -168,9 +254,40 @@ These land immediately after F-07, **ahead of F-08**. The app is hard to use wit
 - [ ] [TEST] Playwright offline: full workspace + schema + record CRUD while offline
 - [ ] [TEST] Data created offline survives reload and remains valid online later
 
+## Phase 1.75 — App Shell & Information Architecture (F-49 – F-52) — P0
+
+The app today is a single centered `max-w-3xl` column with no persistent navigation, and every create/edit flow (schema, record, workspace) lives in a scrolling dialog. That does not scale to rich schemas (dozens of fields + options) and reads as "empty" despite the feature volume. This phase introduces the SaaS-style shell, real routing, page-based editors, and a dashboard. It lands **before F-12** so the visual builder is built once in its final home.
+
+**Route model**: routes are **workspace-scoped** (`/w/$workspaceId/...`). `/` resolves the active workspace from settings and redirects to `/w/$workspaceId`. Delete confirmations stay as dialogs; pickers stay as popovers.
+
+### F-49. Design System Primitives + Theme Toggle — P0
+- [x] Add the missing Shadcn primitives used by the shell: `badge`, `separator`, `tooltip`, `dropdown-menu`, `sheet`, `skeleton`, `avatar`, `table`, `scroll-area` (Radix deps as needed)
+- [x] Basic **dark / light / system** theme toggle in the top bar, persisted in IndexedDB; applies the `dark` class on `<html>` and tracks `prefers-color-scheme` live for `system` (pulls a slice of F-18 forward; the full theme registry stays F-18/F-19)
+- [x] Shared layout tokens: consistent workspace-color accents, elevation, focus rings, reduced-motion-aware transitions
+- [x] [TEST] Each primitive renders + is keyboard operable (smoke); theme toggle cycles light ↔ dark ↔ system, persists across reload, and `system` follows an OS change
+
+### F-50. App Shell & Routing — P0
+- [x] Add **TanStack Router** with a layout route = the app shell; lazy route modules for PWA code-splitting
+- [x] **Sidebar** (Dashboard · Schemas · Settings) on desktop; **top bar** with workspace switcher, search affordance (wired in F-08/F-24), theme toggle (F-49), and a profile menu; mobile bottom-tab navigation stays F-34 (same route set)
+- [x] Route tree: `/` (redirect) · `/w/$workspaceId` · `/w/$workspaceId/schemas` · `/w/$workspaceId/schemas/new` · `/w/$workspaceId/schemas/$schemaId/edit` · `/w/$workspaceId/schemas/$schemaId/records` · `/w/$workspaceId/schemas/$schemaId/records/new` · `/w/$workspaceId/schemas/$schemaId/records/$recordId/edit` · `/workspaces/new` · `/workspaces/$workspaceId/edit` · `/settings`
+- [x] Active workspace stays persisted (F-06); an unknown `$workspaceId` redirects to the default workspace (extends canon STO-10)
+- [x] [TEST] Navigation between routes renders the right view; deep link to a workspace-scoped URL restores that workspace; unknown workspace id falls back to default; browser back/forward works
+
+### F-52. Page-Based Editors — P0
+- [x] **Schema editor** becomes a full page: sticky header/save bar, two-pane layout (left: name/description/draft + Builder/Raw tabs; right: live form preview + JSON mirror). Re-hosts F-03/F-05/F-07a components unchanged
+- [x] **Record form** becomes a full page: sticky header/save, field **sections** grouped by top-level object properties, optional summary/validation rail. Re-hosts the F-07 `RecordForm` engine
+- [x] **Workspace create/edit** become pages (delete confirmation stays a dialog)
+- [x] Every editor is deep-linkable, back-button friendly, and 320px-first responsive
+- [x] [TEST] Create/edit schema + record + workspace through the page routes; deep-link to an edit route opens the correct entity; cancel/back leaves data untouched
+
+### F-51. Dashboard — P0
+- [x] Overview page at `/w/$workspaceId`: stat cards (schemas, records, field totals), recent schemas/records, quick actions (new schema / new record / import)
+- [x] First-run / empty-workspace state with an icon + CTA that teaches the model (feeds F-16 onboarding)
+- [x] [TEST] Counts reflect stored data; empty state renders when a workspace has no schemas; quick actions navigate to the right routes
+
 ## Phase 2 — Automated Quality Gate (F-11)
 
-### F-11. GitHub Actions CI (all kinds of testing) — TOP PRIORITY, gates every merge
+### F-11. GitHub Actions CI (all kinds of testing) — P1, gates every merge
 - [ ] `.github/workflows/ci.yml` triggered on `push` to `main` + all `pull_request`s, with concurrency cancellation of superseded runs
 - [ ] **Lint job**: `npm run lint` (Oxlint)
 - [ ] **Typecheck job**: `npm run typecheck` (`tsc -b`)
@@ -502,7 +619,7 @@ A standing, cross-cutting test mechanism that runs at **every phase boundary** t
 
 ## Next Session Checklist
 - [ ] Read `changelog.md` for what the last session completed
-- [ ] Pick the highest unchecked item in this file (works top-down by phase; F-IDs are ordered by dependency). **Phase 1.5 (F-07a/F-07b/F-12/F-12a) is the immediate priority** — it sits right after F-07, before F-08.
+- [ ] Pick the top item of the [Priority list](#priority-single-source-of-truth) (NOT the physical position of a feature block). **F-12 (Visual Schema Builder) is next up; land it in its final home — the full-page schema editor (F-52) added its sticky header/save bar with Builder & Raw tabs, so the new Builder area plugs straight into the left pane.**
 - [ ] Implement feature **and** its paired `[TEST]` items
 - [ ] Run the **Edge-Case Sweep** (see Testing Strategy) at phase boundaries; add any new edge cases to `docs/edge-cases.md` with tests
 - [ ] Run `lint -> typecheck -> test`

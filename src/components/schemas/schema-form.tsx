@@ -47,6 +47,12 @@ interface SchemaFormProps {
   isSubmitting?: boolean
   onSubmit: (values: SchemaFormValues) => void
   onCancel?: () => void
+  /**
+   * `dialog` (default) keeps the toggled preview inside the form. `page`
+   * renders a two-pane layout with the live preview always visible beside the
+   * editor (used by the F-52 page-based schema editor).
+   */
+  layout?: 'dialog' | 'page'
 }
 
 export function SchemaForm({
@@ -55,6 +61,7 @@ export function SchemaForm({
   isSubmitting = false,
   onSubmit,
   onCancel,
+  layout = 'dialog',
 }: SchemaFormProps) {
   const {
     register,
@@ -124,13 +131,10 @@ export function SchemaForm({
   const [showDiff, setShowDiff] = useState(false)
   const [showFormPreview, setShowFormPreview] = useState(false)
   const initialJson = defaultValues.jsonSchema
+  const isPage = layout === 'page'
 
-  return (
-    <form
-      noValidate
-      onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col gap-5"
-    >
+  const editorContent = (
+    <>
       <div className="flex flex-col gap-2">
         <Label htmlFor="schema-name">Name</Label>
         <Input
@@ -229,18 +233,20 @@ export function SchemaForm({
       </Tabs>
 
       <div className="flex flex-wrap items-center gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="min-h-11 self-start"
-          aria-expanded={showFormPreview}
-          aria-controls="schema-preview-panel"
-          onClick={() => setShowFormPreview((open) => !open)}
-        >
-          <Eye aria-hidden="true" className="size-4" />
-          Preview form
-        </Button>
+        {!isPage && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="min-h-11 self-start"
+            aria-expanded={showFormPreview}
+            aria-controls="schema-preview-panel"
+            onClick={() => setShowFormPreview((open) => !open)}
+          >
+            <Eye aria-hidden="true" className="size-4" />
+            Preview form
+          </Button>
+        )}
         <Button
           type="button"
           variant="outline"
@@ -257,7 +263,7 @@ export function SchemaForm({
           Preview changes
         </Button>
       </div>
-      {showFormPreview && (
+      {!isPage && showFormPreview && (
         <div id="schema-preview-panel">
           <SchemaPreview jsonSchemaText={jsonSchemaText} />
         </div>
@@ -267,16 +273,49 @@ export function SchemaForm({
           <SchemaDiff oldText={initialJson} newText={jsonSchemaText} />
         </div>
       )}
+    </>
+  )
 
-      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-        {onCancel && (
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-        )}
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Saving…' : submitLabel}
+  const actions = (
+    <>
+      {onCancel && (
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancel
         </Button>
+      )}
+      <Button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? 'Saving…' : submitLabel}
+      </Button>
+    </>
+  )
+
+  if (isPage) {
+    return (
+      <form
+        noValidate
+        onSubmit={handleSubmit(onSubmit)}
+        className="grid items-start gap-6 lg:grid-cols-2"
+      >
+        <div className="flex flex-col gap-5">{editorContent}</div>
+        <div className="lg:sticky lg:top-20">
+          <SchemaPreview jsonSchemaText={jsonSchemaText} />
+        </div>
+        <div className="sticky bottom-0 z-10 flex flex-col-reverse gap-2 border-t bg-background/95 py-3 backdrop-blur sm:flex-row sm:justify-end lg:col-span-2">
+          {actions}
+        </div>
+      </form>
+    )
+  }
+
+  return (
+    <form
+      noValidate
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col gap-5"
+    >
+      {editorContent}
+      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        {actions}
       </div>
     </form>
   )

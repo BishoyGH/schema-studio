@@ -22,7 +22,8 @@ Categories: **STO** storage · **CON** concurrency · **OFF** offline · **DAT**
 | STO-07 | Delete a referenced record/schema | Blocked with referrer list, or cascades per policy; never leaves broken refs silently | F-14 | TBD |
 | STO-08 | Reference across workspaces | Forbidden by default; rejected at write | F-14/F-06 | TBD |
 | STO-09 | Settings store key missing | Returns `null` (not `undefined`); TanStack Query v5 accepts it | F-16 | `queries.ts` useSetting |
-| STO-10 | Persisted active-workspace id points to a deleted/missing workspace | Falls back to the default workspace and repairs the stored selection | F-06 | `workspace-switcher.test.tsx` stale selection |
+| STO-10 | Persisted active-workspace id points to a deleted/missing workspace | Falls back to the default workspace and repairs the stored selection | F-06 | `workspaces.test.tsx` stale selection |
+| STO-10U | Deep link references an unknown `$workspaceId` | Route `beforeLoad` redirects to the default workspace; the URL never shows the broken id | F-50 | `workspaces.test.tsx` unknown-id deep link |
 | DAT-01 | Invalid JSON in the Raw editor tab | Parse error with line/column; save blocked; Builder state intact | F-05 | `schema-form.test.tsx` |
 | DAT-02 | Builder ↔ Raw round-trip | Arbitrary schema JSON round-trips through tab switches losslessly (property-based) | F-05 | `schema-form.test.tsx` fast-check |
 | DAT-03 | Unsupported construct in Builder | Survives byte-identical; flagged "advanced — edit in Raw JSON", never mangled | F-12 | TBD |
@@ -55,7 +56,7 @@ Categories: **STO** storage · **CON** concurrency · **OFF** offline · **DAT**
 | A11Y-02 | Mouse-free workflow | Every view driveable by keyboard incl. dialogs (focus traps, visible rings) | F-23 | TBD |
 | A11Y-03 | Screen-reader parity mobile/desktop nav | Same route set reachable and labeled on both | F-34 | TBD |
 | UI-01 | 320px viewport | Zero horizontal overflow; tables degrade to cards; all controls reachable | F-32 | TBD |
-| UI-02 | Empty workspace/schema/record list | Renders helpful empty state; first-run onboarding guides | F-16/F-06/F-08/F-09 | F-06 covered by `workspace-switcher.test.tsx`; F-16 onboarding TBD |
+| UI-02 | Empty workspace/schema/record list | Renders helpful empty state; first-run onboarding guides | F-16/F-06/F-08/F-09 | F-06 covered by `workspaces.test.tsx`; dashboard empty state by `dashboard.test.tsx`; F-16 onboarding TBD |
 | UI-03 | Component crashes | Error boundary fallback; app stays usable | F-39 | TBD |
 | UI-04 | IndexedDB power/coverage failure | Graceful error UI; no data corruption | F-39 | TBD |
 | Q-01 | Create/update/delete schema or record | TanStack Query cache invalidated; lists rebuild correctly | F-08 | TBD |
@@ -63,7 +64,7 @@ Categories: **STO** storage · **CON** concurrency · **OFF** offline · **DAT**
 | PERF-01 | 1k+ records in table | Responsive sort/filter/pagination | F-09 | TBD |
 | PERF-02 | 10k+ rows import/export | Chunked/streaming; UI stays responsive; quota honored | F-27/F-28 | TBD |
 | SW-01 | Service worker updates | IndexedDB data survives install/activate/update cycle | F-36 | TBD |
-| THEME-01 | Theme toggle + reload | Choice persists; BlockNote follows mode | F-18/F-07b | TBD |
+| THEME-01 | Theme toggle + reload | Choice persists; BlockNote follows mode | F-18/F-07b | persistence + `system` live-switch by `theme-toggle.test.tsx`; BlockNote mode TBD |
 | THEME-02 | Custom theme registered | Whole app switches via variable set, no code change | F-19 | TBD |
 | SEC-01 | Imported JSON contains eval-like payload | Never evaluated/executed; sanitized | F-40 | TBD |
 | SEC-02 | Backend/AI credentials | Stored in IndexedDB only; never in logs, URLs, or bundle | F-40/F-48/F-46 | TBD |

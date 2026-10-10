@@ -3,8 +3,10 @@ import { getStorage } from '@/lib/storage'
 
 export const SCHEMA_EDITOR_TAB_SETTING = 'schemaEditor.defaultTab'
 export const ACTIVE_WORKSPACE_SETTING = 'workspace.activeId'
+export const THEME_SETTING = 'appearance.theme'
 
 export type SchemaEditorTab = 'builder' | 'raw'
+export type ThemeMode = 'light' | 'dark' | 'system'
 
 export const settingKeys = {
   all: ['settings'] as const,
@@ -66,6 +68,22 @@ export function useSetActiveWorkspaceId() {
         settingKeys.one(ACTIVE_WORKSPACE_SETTING),
         workspaceId,
       )
+    },
+  })
+}
+
+/** The persisted appearance preference (light, dark, or follow the OS). */
+export function useThemeMode() {
+  return useSetting<ThemeMode>(THEME_SETTING)
+}
+
+export function useSetThemeMode() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (mode: ThemeMode) =>
+      getStorage().setSetting(THEME_SETTING, mode),
+    onSuccess: (_result, mode) => {
+      queryClient.setQueryData(settingKeys.one(THEME_SETTING), mode)
     },
   })
 }

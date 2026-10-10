@@ -1,7 +1,28 @@
 # Change Log
 All notable changes to Schema Studio.
 
-## Session 16 - [2026-10-10]
+## Session 17 - [2026-10-10]
+### Added
+- **F-49 Design System Primitives + Theme Toggle**:
+  - Added the shell's missing Shadcn primitives: `badge`, `separator`, `tooltip`, `dropdown-menu`, `sheet`, `skeleton`, `avatar`, `table`, `scroll-area`
+  - `src/components/app/theme-provider.tsx` (`ThemeProvider`) + `theme-toggle.tsx` (`ThemeToggle`): dark/light/system mode persisted via `appearance.theme` setting; applies the `dark` class + `color-scheme` on `<html>`; `system` tracks `prefers-color-scheme` live through a media-listener effect
+- **F-50 App Shell & Routing**:
+  - `src/router.tsx`: TanStack Router tree — `/` (redirect via `resolveActiveWorkspaceId`) · `/w/$workspaceId` layout route (AppShell, `beforeLoad` validates the workspace and falls back to default) · dashboard / schemas / schemas.new / schemas.$schemaId.edit / records / records.new / records.$recordId.edit / workspaces.new / workspaces.$workspaceId.edit / settings · NotFoundPage
+  - `createAppRouter(history?)` factory + singleton `router`; `src/App.tsx` now composes `QueryClientProvider` → `ThemeProvider` → `RouterProvider` and accepts an optional `router` prop for tests (default export restored, `main.tsx` unchanged)
+  - `src/components/app/app-shell.tsx`: persistent sidebar (Dashboard · Schemas · Settings) on desktop with mobile slide-over nav (sheet), top bar with workspace switcher, search affordance, theme toggle, profile menu; deleted the old `workspace-switcher` component (functionality moved into the shell)
+- **F-52 Page-Based Editors**:
+  - `src/layouts/workspace-layout.tsx` + editor pages: `src/pages/schema-editor.tsx`, `record-editor.tsx`, `workspace-editor.tsx`, `schemas.tsx`, `records.tsx` — sticky header/save bars, two-pane schema editor (name/description/draft + Builder|Raw tabs + live preview rail), record form sections, deep-linkable edit routes; deleted the dialog-based `schema-manager` / `record-manager` components
+- **F-51 Dashboard**: `src/pages/dashboard.tsx` — stat cards (schemas/records/fields), recent schemas with record-count badges, quick actions, empty-workspace state
+- `src/test/render-app.tsx`: deterministic test harness (memory history + `createAppRouter`) for route-level tests
+
+### Tests
+- [x] `src/components/app/theme-toggle.test.tsx` (new, 2): light ↔ dark ↔ system cycle persists across a remount; `system` follows a controlled `matchMedia` OS change; manual mode stops following the OS
+- [x] `src/pages/dashboard.test.tsx` (new, 2): empty-workspace state + quick action navigation; stats/recent-schemas reflect stored data
+- [x] `src/pages/workspaces.test.tsx` (moved from `workspace-switcher.test.tsx`, +2): full creation flow through the editor pages, rename/delete, scoping, stale-selection repair, unknown `$workspaceId` deep link falls back to default
+- [x] `src/pages/schemas.test.tsx` (new, 5) + `records.test.tsx` (new, 3): CRUD through page routes, validation blocks save, deep-link edit opens the entity prefilled, browser back/forward between routes
+- [x] `src/App.test.tsx` rewritten for the shell; `e2e/smoke.spec.ts` updated: brand + resolved default-workspace heading
+- [x] `lint` -> `typecheck` -> `test` (172 passing across 19 files) -> `build` all green (lint/build emit known warnings only)
+- [x] Edge-Case Canon updated: STO-10U (unknown `$workspaceId` deep link), STO-10/UI-02/THEME-01 references point at the new test files
 ### Added
 - **F-07b Rich Text / Block Content field type + BlockNote editor**:
   - Introduces the `x-schema-studio` extension namespace via `src/lib/schemas/extension.ts` (`SCHEMA_STUDIO_KEY`, `RICH_TEXT_KIND`, `readSchemaStudioExtension`, `readUnknownExtensionKind`, `isRichTextField`, `richTextFieldSchema`); a rich text field is `{ "type": "array", "x-schema-studio": { "kind": "richText" } }`

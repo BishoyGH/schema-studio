@@ -1,61 +1,17 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { RouterProvider } from '@tanstack/react-router'
 import { useState } from 'react'
-import { SchemaManager } from '@/components/schemas/schema-manager'
-import { WorkspaceSwitcher } from '@/components/workspaces/workspace-switcher'
-import { useActiveWorkspace } from '@/lib/workspaces/queries'
+import { ThemeProvider } from '@/components/app/theme-provider'
+import { createAppRouter } from '@/router'
 
-function AppShell() {
-  const {
-    workspaces,
-    activeWorkspace,
-    isLoading,
-    isError,
-    setActiveWorkspace,
-  } = useActiveWorkspace()
+type AppRouter = ReturnType<typeof createAppRouter>
 
-  return (
-    <div className="flex min-h-svh flex-col">
-      <header className="border-b">
-        <div className="mx-auto flex w-full max-w-3xl flex-wrap items-center justify-between gap-3 px-4 py-4">
-          <h1 className="text-lg font-semibold tracking-tight">
-            Schema Studio
-          </h1>
-          <WorkspaceSwitcher
-            workspaces={workspaces}
-            activeWorkspace={activeWorkspace}
-            onChange={setActiveWorkspace}
-          />
-        </div>
-      </header>
-      <main className="flex-1">
-        {isError && (
-          <p
-            className="mx-auto max-w-3xl px-4 py-8 text-destructive text-sm"
-            role="alert"
-          >
-            Could not load workspaces. Please try again.
-          </p>
-        )}
-        {!isError && (isLoading || !activeWorkspace) && (
-          <p
-            className="mx-auto max-w-3xl px-4 py-8 text-muted-foreground text-sm"
-            role="status"
-          >
-            Loading workspace…
-          </p>
-        )}
-        {!isError && activeWorkspace && (
-          <SchemaManager
-            key={activeWorkspace.id}
-            workspaceId={activeWorkspace.id}
-          />
-        )}
-      </main>
-    </div>
-  )
+interface AppProps {
+  /** Injectable for tests (e.g. a memory-history router). */
+  router?: AppRouter
 }
 
-function App() {
+function App({ router: providedRouter }: AppProps) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -67,10 +23,13 @@ function App() {
         },
       }),
   )
+  const [router] = useState(() => providedRouter ?? createAppRouter())
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AppShell />
+      <ThemeProvider>
+        <RouterProvider router={router} />
+      </ThemeProvider>
     </QueryClientProvider>
   )
 }
